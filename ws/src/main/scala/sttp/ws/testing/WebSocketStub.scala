@@ -20,6 +20,7 @@ class WebSocketStub[S](
     initialState: S,
     makeNewResponses: (S, WebSocketFrame) => (S, List[Try[WebSocketFrame]])
 ) {
+
   /**
     * Creates a stub that has the same initial receive frames, but replaces the function that adds responses to be
     * received in reaction to [[WebSocket.send]] being invoked.
@@ -52,10 +53,11 @@ class WebSocketStub[S](
     */
   def thenRespondS[S2](initial: S2)(
       onSend: (S2, WebSocketFrame) => (S2, List[WebSocketFrame])
-  ): WebSocketStub[S2] = thenRespondWithS(initial) { (s, f) =>
-    val (s2, lf) = onSend(s, f)
-    (s2, lf.map(Try(_)))
-  }
+  ): WebSocketStub[S2] =
+    thenRespondWithS(initial) { (s, f) =>
+      val (s2, lf) = onSend(s, f)
+      (s2, lf.map(Try(_)))
+    }
 
   /**
     * Creates a stub that has the same initial responses, but replaces the function that adds responses to be
@@ -119,6 +121,7 @@ class WebSocketStub[S](
 }
 
 object WebSocketStub {
+
   /**
     * Creates a stub which will return the given responses when [[WebSocket.receive]] is called by the client.
     * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently

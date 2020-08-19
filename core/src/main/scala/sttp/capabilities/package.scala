@@ -1,6 +1,7 @@
 package sttp
 
 package object capabilities {
+
   /**
     * A capability of sending and receiving streaming bodies.
     * @tparam S The type to use as a capability. Should be the self-type of the implementation. This is needed so that

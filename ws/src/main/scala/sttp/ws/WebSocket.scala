@@ -9,6 +9,7 @@ import sttp.monad.syntax._
   * exceptions, or a backend-specific exception.
   */
 trait WebSocket[F[_]] {
+
   /**
     * After receiving a close frame, no further interactions with the web socket should happen. Subsequent invocations
     * of `receive`, as well as `send`, will fail with the [[WebSocketClosed]] exception.
