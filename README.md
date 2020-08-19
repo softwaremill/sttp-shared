@@ -1,4 +1,4 @@
-![sttp-shared](https://github.com/softwaremill/sttp-model/raw/master/banner.png)
+![sttp-shared](https://github.com/softwaremill/sttp-shared/raw/master/banner.png)
 
 [![Build Status](https://travis-ci.org/softwaremill/sttp-shared.svg?branch=master)](https://travis-ci.org/softwaremill/sttp-shared)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.softwaremill.sttp.shared/core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.softwaremill.sttp.shared/core_2.12)
