@@ -9,7 +9,7 @@ val scala3 = "0.26.0-RC1"
 
 val sttpModelVersion = "1.2.0-RC2"
 
-val scalaTestVersion = "3.2.1"
+val scalaTestVersion = "3.2.2"
 val scalaNativeTestInterfaceVersion = "0.4.0-M2"
 val zioVersion = "1.0.1"
 val fs2Version: Option[(Long, Long)] => String = {
