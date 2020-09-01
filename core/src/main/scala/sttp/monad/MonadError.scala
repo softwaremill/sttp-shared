@@ -27,13 +27,7 @@ trait MonadError[F[_]] {
       case Failure(e) => error(e)
     }
 
-  def ensure[T](f: F[T], e: => F[Unit]): F[T] = {
-    handleError(
-      flatMap(f)(v => map(e)(_ => v))
-    ) {
-      case t => flatMap(e)(_ => error(t))
-    }
-  }
+  def ensure[T](f: F[T], e: => F[Unit]): F[T]
 }
 
 trait MonadAsyncError[F[_]] extends MonadError[F] {
@@ -81,6 +75,18 @@ object EitherMonad extends MonadError[Either[Throwable, *]] {
       case Left(a) if h.isDefinedAt(a) => h(a)
       case _                           => rt
     }
+
+  override def ensure[T](f: Either[Throwable, T], e: => Either[Throwable, Unit]): Either[Throwable, T] = {
+    def runE =
+      Try(e) match {
+        case Failure(f) => Left(f)
+        case Success(v) => v
+      }
+    f match {
+      case Left(f)  => runE.right.flatMap(_ => Left(f))
+      case Right(v) => runE.right.map(_ => v)
+    }
+  }
 }
 
 object TryMonad extends MonadError[Try] {
@@ -94,6 +100,12 @@ object TryMonad extends MonadError[Try] {
     rt.recoverWith(h)
 
   override def eval[T](t: => T): Try[T] = Try(t)
+
+  override def ensure[T](f: Try[T], e: => Try[Unit]): Try[T] =
+    f match {
+      case Success(v) => Try(e).flatten.map(_ => v)
+      case Failure(f) => Try(e).flatten.flatMap(_ => Failure(f))
+    }
 }
 class FutureMonad(implicit ec: ExecutionContext) extends MonadAsyncError[Future] {
   override def unit[T](t: T): Future[T] = Future.successful(t)
@@ -112,6 +124,20 @@ class FutureMonad(implicit ec: ExecutionContext) extends MonadAsyncError[Future]
     register {
       case Left(t)  => p.failure(t)
       case Right(t) => p.success(t)
+    }
+    p.future
+  }
+
+  override def ensure[T](f: Future[T], e: => Future[Unit]): Future[T] = {
+    val p = Promise[T]()
+    def runE =
+      Try(e) match {
+        case Failure(f) => Future.failed(f)
+        case Success(v) => v
+      }
+    f.onComplete {
+      case Success(v) => runE.map(_ => v).onComplete(p.complete(_))
+      case Failure(f) => runE.flatMap(_ => Future.failed(f)).onComplete(p.complete(_))
     }
     p.future
   }
