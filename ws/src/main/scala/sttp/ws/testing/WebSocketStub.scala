@@ -79,7 +79,7 @@ class WebSocketStub[S](
       private var responses = initialResponses
 
       override def monad: MonadError[F] = m
-      override def isOpen(): F[Boolean] = monad.unit(_isOpen)
+      override def isOpen(): F[Boolean] = monad.eval(_isOpen)
 
       override def receive(): F[WebSocketFrame] =
         monad.flatten(monad.eval {
