@@ -82,25 +82,27 @@ class WebSocketStub[S](
       override def isOpen(): F[Boolean] = monad.unit(_isOpen)
 
       override def receive(): F[WebSocketFrame] =
-        synchronized {
-          if (_isOpen) {
-            responses.headOption match {
-              case Some(Success(close: WebSocketFrame.Close)) =>
-                _isOpen = false
-                monad.unit(close)
-              case Some(Success(response)) =>
-                responses = responses.tail
-                monad.unit(response)
-              case Some(Failure(e)) =>
-                _isOpen = false
-                monad.error(e)
-              case None =>
-                monad.error(new IllegalStateException("Unexpected 'receive', no more prepared responses."))
+        monad.flatten(monad.eval {
+          synchronized {
+            if (_isOpen) {
+              responses.headOption match {
+                case Some(Success(close: WebSocketFrame.Close)) =>
+                  _isOpen = false
+                  monad.unit(close)
+                case Some(Success(response)) =>
+                  responses = responses.tail
+                  monad.unit(response)
+                case Some(Failure(e)) =>
+                  _isOpen = false
+                  monad.error(e)
+                case None =>
+                  monad.error(new IllegalStateException("Unexpected 'receive', no more prepared responses."))
+              }
+            } else {
+              monad.error(new WebSocketClosed())
             }
-          } else {
-            monad.error(new WebSocketClosed())
           }
-        }
+        })
 
       override def send(frame: WebSocketFrame, isContinuation: Boolean): F[Unit] =
         monad.flatten(monad.eval {

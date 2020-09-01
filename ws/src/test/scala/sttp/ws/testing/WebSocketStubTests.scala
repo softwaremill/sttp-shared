@@ -107,4 +107,30 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
     ws.receive() shouldBe WebSocketFrame.text("No. 1")
     ws.receive() shouldBe WebSocketFrame.text("No. 2")
   }
+
+  object LazyMonad extends MonadError[() => *] {
+    override def unit[T](t: T): () => T = () => t
+    override def map[T, T2](fa: () => T)(f: T => T2): () => T2 = () => f(fa())
+    override def flatMap[T, T2](fa: () => T)(f: T => () => T2): () => T2 = () => f(fa())()
+    override def error[T](t: Throwable): () => T = () => throw t
+    override protected def handleWrappedError[T](rt: () => T)(h: PartialFunction[Throwable, () => T]): () => T =
+      () =>
+        try rt()
+        catch {
+          case e if h.isDefinedAt(e) => h.apply(e)()
+          case e                     => throw e
+        }
+  }
+
+  "receive" should "be lazy" in {
+    // given
+    val ws = WebSocketStub.noInitialReceive.thenRespond(_ => List(WebSocketFrame.text("test"))).build(LazyMonad)
+
+    // when
+    val doReceive = ws.receive() // should return a lazy receive
+    ws.send(WebSocketFrame.text("x"))()
+
+    // then
+    doReceive() shouldBe WebSocketFrame.text("test")
+  }
 }
