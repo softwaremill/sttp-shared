@@ -19,6 +19,7 @@ trait MonadError[F[_]] {
   }
 
   def eval[T](t: => T): F[T] = map(unit(()))(_ => t)
+  def suspend[T](t: => F[T]): F[T] = flatten(eval(t))
   def flatten[T](ffa: F[F[T]]): F[T] = flatMap[F[T], T](ffa)(identity)
 
   def fromTry[T](t: Try[T]): F[T] =
@@ -101,6 +102,8 @@ object TryMonad extends MonadError[Try] {
 
   override def eval[T](t: => T): Try[T] = Try(t)
 
+  override def fromTry[T](t: Try[T]): Try[T] = t
+
   override def ensure[T](f: Try[T], e: => Try[Unit]): Try[T] =
     f match {
       case Success(v) => Try(e).flatten.map(_ => v)
@@ -118,6 +121,9 @@ class FutureMonad(implicit ec: ExecutionContext) extends MonadAsyncError[Future]
     rt.recoverWith(h)
 
   override def eval[T](t: => T): Future[T] = Future(t)
+  override def suspend[T](t: => Future[T]): Future[T] = Future(t).flatMap(identity)
+
+  override def fromTry[T](t: Try[T]): Future[T] = Future.fromTry(t)
 
   override def async[T](register: (Either[Throwable, T] => Unit) => Canceler): Future[T] = {
     val p = Promise[T]()
