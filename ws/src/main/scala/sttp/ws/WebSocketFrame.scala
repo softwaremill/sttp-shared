@@ -3,8 +3,7 @@ package sttp.ws
 sealed trait WebSocketFrame
 
 object WebSocketFrame {
-  sealed trait Incoming extends WebSocketFrame
-  sealed trait Data[T] extends Incoming {
+  sealed trait Data[T] extends WebSocketFrame {
     def payload: T
     def finalFragment: Boolean
     def rsv: Option[Int]
@@ -28,8 +27,8 @@ object WebSocketFrame {
     */
   case class Binary(payload: Array[Byte], finalFragment: Boolean, rsv: Option[Int]) extends Data[Array[Byte]]
 
-  case class Ping(payload: Array[Byte]) extends Incoming
-  case class Pong(payload: Array[Byte]) extends Incoming
+  case class Ping(payload: Array[Byte]) extends WebSocketFrame
+  case class Pong(payload: Array[Byte]) extends WebSocketFrame
   case class Close(statusCode: Int, reasonText: String) extends WebSocketFrame
 
   def text(payload: String): Text = Text(payload, finalFragment = true, rsv = None)
