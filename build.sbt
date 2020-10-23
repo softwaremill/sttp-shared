@@ -5,17 +5,19 @@ import sbtrelease.ReleaseStateTransformations._
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.11"
 val scala2_13 = "2.13.3"
-val scala3 = "0.26.0-RC1"
+val scala3 = "0.27.0-RC1"
 
-val sttpModelVersion = "1.2.0-RC4"
+val sttpModelVersion = "1.2.0-RC5"
 
 val scalaTestVersion = "3.2.2"
 val scalaNativeTestInterfaceVersion = "0.4.0-M2"
-val zioVersion = "1.0.1"
+val zioVersion = "1.0.3"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.4.2"
 }
+
+excludeLintKeys in Global ++= Set(ideSkipProject)
 
 def dependenciesFor(version: String)(deps: (Option[(Long, Long)] => ModuleID)*): Seq[ModuleID] =
   deps.map(_.apply(CrossVersion.partialVersion(version)))
