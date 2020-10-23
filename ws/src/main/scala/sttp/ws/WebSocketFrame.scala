@@ -9,6 +9,8 @@ object WebSocketFrame {
     def rsv: Option[Int]
   }
 
+  sealed trait Control extends WebSocketFrame
+
   /**
     * A text frame with fragmentation or extension bits.
     *
@@ -27,9 +29,9 @@ object WebSocketFrame {
     */
   case class Binary(payload: Array[Byte], finalFragment: Boolean, rsv: Option[Int]) extends Data[Array[Byte]]
 
-  case class Ping(payload: Array[Byte]) extends WebSocketFrame
-  case class Pong(payload: Array[Byte]) extends WebSocketFrame
-  case class Close(statusCode: Int, reasonText: String) extends WebSocketFrame
+  case class Ping(payload: Array[Byte]) extends Control
+  case class Pong(payload: Array[Byte]) extends Control
+  case class Close(statusCode: Int, reasonText: String) extends Control
 
   def text(payload: String): Text = Text(payload, finalFragment = true, rsv = None)
   def binary(payload: Array[Byte]): Binary = Binary(payload, finalFragment = true, rsv = None)
