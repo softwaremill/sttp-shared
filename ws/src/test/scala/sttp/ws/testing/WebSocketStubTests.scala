@@ -97,8 +97,8 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
 
   it should "use state to add next responses" in {
     val webSocketStub = WebSocketStub.noInitialReceive
-      .thenRespondS(0) {
-        case (counter, _) => (counter + 1, List(WebSocketFrame.text(s"No. $counter")))
+      .thenRespondS(0) { case (counter, _) =>
+        (counter + 1, List(WebSocketFrame.text(s"No. $counter")))
       }
     val ws = webSocketStub.build(IdMonad)
 

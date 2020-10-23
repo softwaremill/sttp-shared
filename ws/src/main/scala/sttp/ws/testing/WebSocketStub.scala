@@ -6,8 +6,7 @@ import sttp.ws.{WebSocket, WebSocketClosed, WebSocketFrame}
 
 import scala.util.{Failure, Success, Try}
 
-/**
-  * A stub for websockets that uses a queue of frames which are returned when the client calls
+/** A stub for websockets that uses a queue of frames which are returned when the client calls
   * [[WebSocket.receive]].
   *
   * New messages can be added to queue in reaction to [[WebSocket.send]] being invoked, by specifying the
@@ -21,16 +20,14 @@ class WebSocketStub[S](
     makeNewResponses: (S, WebSocketFrame) => (S, List[Try[WebSocketFrame]])
 ) {
 
-  /**
-    * Creates a stub that has the same initial receive frames, but replaces the function that adds responses to be
+  /** Creates a stub that has the same initial receive frames, but replaces the function that adds responses to be
     * received in reaction to [[WebSocket.send]] being invoked.
     */
   def thenRespond(
       addReceived: WebSocketFrame => List[WebSocketFrame]
   ): WebSocketStub[Unit] = thenRespondWith(f => addReceived(f).map(Try(_)))
 
-  /**
-    * Creates a stub that has the same initial receive frames, but replaces the function that adds responses to be
+  /** Creates a stub that has the same initial receive frames, but replaces the function that adds responses to be
     * received in reaction to [[WebSocket.send]] being invoked.
     *
     * More powerful version of [[thenRespond()]] which allows receiving to fail with an exception.
@@ -44,8 +41,7 @@ class WebSocketStub[S](
       (_, frame) => ((), addReceived(frame))
     )
 
-  /**
-    * Creates a stub that has the same initial responses, but replaces the function that adds responses to be
+  /** Creates a stub that has the same initial responses, but replaces the function that adds responses to be
     * received in reaction to [[WebSocket.send]] being invoked.
     *
     * More powerful version of [[thenRespond()]], as the given function can additionally use state and implement stateful
@@ -59,8 +55,7 @@ class WebSocketStub[S](
       (s2, lf.map(Try(_)))
     }
 
-  /**
-    * Creates a stub that has the same initial responses, but replaces the function that adds responses to be
+  /** Creates a stub that has the same initial responses, but replaces the function that adds responses to be
     * received in reaction to [[WebSocket.send]] being invoked.
     *
     * More powerful version of:
@@ -124,8 +119,7 @@ class WebSocketStub[S](
 
 object WebSocketStub {
 
-  /**
-    * Creates a stub which will return the given responses when [[WebSocket.receive]] is called by the client.
+  /** Creates a stub which will return the given responses when [[WebSocket.receive]] is called by the client.
     * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently
     * calling one of the [[WebSocketStub.thenRespond]] methods.
     */
@@ -135,8 +129,7 @@ object WebSocketStub {
     new WebSocketStub(events, (), (_, _) => ((), List.empty))
   }
 
-  /**
-    * Creates a stub which will return the given messages when [[WebSocket.receive]] is called by the client.
+  /** Creates a stub which will return the given messages when [[WebSocket.receive]] is called by the client.
     * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently
     * calling one of the [[WebSocketStub.thenRespond]] methods.
     */
@@ -146,8 +139,7 @@ object WebSocketStub {
     initialReceiveWith(messages.map(m => Success(m)))
   }
 
-  /**
-    * Creates a stub which won't return any initial frames when [[WebSocket.receive]] is called by the client.
+  /** Creates a stub which won't return any initial frames when [[WebSocket.receive]] is called by the client.
     * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently
     * calling one of the [[WebSocketStub.thenRespond]] methods.
     */

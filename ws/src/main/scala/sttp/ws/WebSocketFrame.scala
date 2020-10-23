@@ -11,8 +11,7 @@ object WebSocketFrame {
 
   sealed trait Control extends WebSocketFrame
 
-  /**
-    * A text frame with fragmentation or extension bits.
+  /** A text frame with fragmentation or extension bits.
     *
     * @param payload a text fragment.
     * @param finalFragment flag indicating whether or not this is the final fragment
@@ -20,8 +19,7 @@ object WebSocketFrame {
     */
   case class Text(payload: String, finalFragment: Boolean, rsv: Option[Int]) extends Data[String]
 
-  /**
-    * A binary frame with fragmentation or extension bits.
+  /** A binary frame with fragmentation or extension bits.
     *
     * @param payload a binary payload
     * @param finalFragment flag indicating whether or not this is the last fragment
