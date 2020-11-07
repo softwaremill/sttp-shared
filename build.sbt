@@ -267,7 +267,7 @@ lazy val fs2 = (projectMatrix in file("fs2"))
 lazy val monix = (projectMatrix in file("monix"))
   .settings(
     name := "monix",
-    libraryDependencies += "io.monix" %%% "monix" % "3.2.2"
+    libraryDependencies += "io.monix" %%% "monix" % "3.3.0"
   )
   .jvmPlatform(
     scalaVersions = List(scala2_11, scala2_12, scala2_13),
