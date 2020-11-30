@@ -1,20 +1,24 @@
 import com.softwaremill.Publish.Release.updateVersionInDocs
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
+// run JS tests inside Chrome, due to jsdom not supporting fetch
+import com.softwaremill.SbtSoftwareMillBrowserTestJS._
 
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.11"
-val scala2_13 = "2.13.3"
-val scala3 = "0.27.0-RC1"
+val scala2_13 = "2.13.4"
+val scala2 = List(scala2_11, scala2_12, scala2_13)
+val dotty = "0.27.0-RC1"
+val scala3 = List(dotty, "3.0.0-M1")
 
-val sttpModelVersion = "1.2.0-RC5"
+val sttpModelVersion = "1.2.0-RC6"
 
-val scalaTestVersion = "3.2.2"
+def scalaTestVersion(scalaVersion: String): String = if (scalaVersion == dotty) "3.2.2" else "3.2.3"
 val scalaNativeTestInterfaceVersion = "0.4.0-M2"
 val zioVersion = "1.0.3"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
-  case _             => "2.4.2"
+  case _             => "2.4.6"
 }
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -50,7 +54,7 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
   sources in (Compile, doc) := {
     val scalaV = scalaVersion.value
     val current = (sources in (Compile, doc)).value
-    if (scalaV == scala3) Seq() else current
+    if (scala3.contains(scalaV)) Seq() else current
   }
 )
 
@@ -63,7 +67,7 @@ val commonJvmSettings = commonSettings ++ Seq(
   },
   ideSkipProject := (scalaVersion.value != scala2_13),
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %% "scalatest" % scalaTestVersion(scalaVersion.value) % Test
   )
 )
 
@@ -84,7 +88,7 @@ val commonJsSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %%% "scalatest" % scalaTestVersion(scalaVersion.value) % Test
   )
 )
 
@@ -93,70 +97,8 @@ val commonNativeSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
     "org.scala-native" %%% "test-interface" % scalaNativeTestInterfaceVersion,
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %%% "scalatest" % scalaTestVersion(scalaVersion.value) % Test
   )
-)
-
-lazy val downloadChromeDriver = taskKey[Unit]("Download chrome driver corresponding to installed google-chrome version")
-Global / downloadChromeDriver := {
-  if (java.nio.file.Files.notExists(new File("target", "chromedriver").toPath)) {
-    println("ChromeDriver binary file not found. Detecting google-chrome version...")
-    import sys.process._
-    val osName = sys.props("os.name")
-    val isMac = osName.toLowerCase.contains("mac")
-    val isWin = osName.toLowerCase.contains("win")
-    val chromeVersionExecutable =
-      if (isMac)
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-      else "google-chrome"
-    val chromeVersion = Seq(chromeVersionExecutable, "--version").!!.split(' ')(2)
-    println(s"Detected google-chrome version: $chromeVersion")
-    val withoutLastPart = chromeVersion.split('.').dropRight(1).mkString(".")
-    println(s"Selected release: $withoutLastPart")
-    val latestVersion =
-      IO.readLinesURL(new URL(s"https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$withoutLastPart")).mkString
-    val platformDependentName = if (isMac) {
-      "chromedriver_mac64.zip"
-    } else if (isWin) {
-      "chromedriver_win32.zip"
-    } else {
-      "chromedriver_linux64.zip"
-    }
-    println(s"Downloading chrome driver version $latestVersion for $osName")
-    IO.unzipURL(
-      new URL(s"https://chromedriver.storage.googleapis.com/$latestVersion/$platformDependentName"),
-      new File("target")
-    )
-    IO.chmod("rwxrwxr-x", new File("target", "chromedriver"))
-  } else {
-    println("Detected chromedriver binary file, skipping downloading.")
-  }
-}
-
-// run JS tests inside Chrome, due to jsdom not supporting fetch
-val browserTestSettings = Seq(
-  jsEnv in Test := {
-    val debugging = false // set to true to help debugging
-    System.setProperty("webdriver.chrome.driver", "target/chromedriver")
-    new org.scalajs.jsenv.selenium.SeleniumJSEnv(
-      {
-        val options = new org.openqa.selenium.chrome.ChromeOptions()
-        val args = Seq(
-          "auto-open-devtools-for-tabs", // devtools needs to be open to capture network requests
-          "no-sandbox",
-          "allow-file-access-from-files" // change the origin header from 'null' to 'file'
-        ) ++ (if (debugging) Seq.empty else Seq("headless"))
-        options.addArguments(args: _*)
-        val capabilities = org.openqa.selenium.remote.DesiredCapabilities.chrome()
-        capabilities.setCapability(org.openqa.selenium.chrome.ChromeOptions.CAPABILITY, options)
-        capabilities
-      },
-      org.scalajs.jsenv.selenium.SeleniumJSEnv.Config().withKeepAlive(debugging)
-    )
-  },
-  test in Test := (test in Test)
-    .dependsOn(downloadChromeDriver in Global)
-    .value
 )
 
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
@@ -164,36 +106,15 @@ lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STT
   core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio.projectRefs
 } else {
   println("[info] STTP_NATIVE *not* defined, *not* including sttp-native in the aggregate projects")
-  List(
-    core.jvm(scala2_11),
-    core.jvm(scala2_12),
-    core.jvm(scala2_13),
-    core.jvm(scala3),
-    core.js(scala2_11),
-    core.js(scala2_12),
-    core.js(scala2_13),
-    ws.jvm(scala2_11),
-    ws.jvm(scala2_12),
-    ws.jvm(scala2_13),
-    ws.jvm(scala3),
-    ws.js(scala2_11),
-    ws.js(scala2_12),
-    ws.js(scala2_13),
-    akka.jvm(scala2_12),
-    akka.jvm(scala2_13),
-    fs2.jvm(scala2_11),
-    fs2.jvm(scala2_12),
-    fs2.jvm(scala2_13),
-    monix.jvm(scala2_11),
-    monix.jvm(scala2_12),
-    monix.jvm(scala2_13),
-    monix.js(scala2_12),
-    monix.js(scala2_13),
-    zio.jvm(scala2_11),
-    zio.jvm(scala2_12),
-    zio.jvm(scala2_13),
-    zio.jvm(scala3)
-  )
+  scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
+    scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v), monix.jvm(v))) ++
+    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), zio.jvm(v))) ++
+    List[ProjectReference](
+      akka.jvm(scala2_12),
+      akka.jvm(scala2_13),
+      monix.js(scala2_12),
+      monix.js(scala2_13)
+    )
 }
 
 val compileAndTest = "compile->compile;test->test"
@@ -208,11 +129,11 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13, scala3),
+    scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13),
+    scalaVersions = scala2,
     settings = commonJsSettings ++ browserTestSettings
   )
   .nativePlatform(
@@ -226,11 +147,11 @@ lazy val ws = (projectMatrix in file("ws"))
     libraryDependencies += "com.softwaremill.sttp.model" %%% "core" % sttpModelVersion
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13, scala3),
+    scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13),
+    scalaVersions = scala2,
     settings = commonJsSettings ++ browserTestSettings
   )
   .nativePlatform(
@@ -259,7 +180,7 @@ lazy val fs2 = (projectMatrix in file("fs2"))
     )
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13),
+    scalaVersions = scala2,
     settings = commonJvmSettings
   )
   .dependsOn(core)
@@ -270,7 +191,7 @@ lazy val monix = (projectMatrix in file("monix"))
     libraryDependencies += "io.monix" %%% "monix" % "3.3.0"
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13),
+    scalaVersions = scala2,
     settings = commonJvmSettings
   )
   .jsPlatform(
@@ -285,7 +206,7 @@ lazy val zio = (projectMatrix in file("zio"))
     libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_11, scala2_12, scala2_13, scala3),
+    scalaVersions = scala2 ++ List(dotty),
     settings = commonJvmSettings
   )
   .dependsOn(core)
