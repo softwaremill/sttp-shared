@@ -11,6 +11,16 @@ sttp is a family of Scala HTTP-related projects, and currently includes:
 * [sttp model](https://github.com/softwaremill/sttp-model): Simple Scala HTTP model.
 * sttp shared: this project. Shared web socket, FP abstractions, capabilities and streaming code.
 
+## Quickstart with sbt
+
+Add the following dependency:
+
+```scala
+"com.softwaremill.sttp.shared" %% "core" % "1.0.0-RC9"
+```
+
+sttp model is available for Scala 2.11, 2.12, 2.13, 3.0.0-Mx, Scala.JS and Scala Native.
+
 ### Building & testing the scala-native version
 
 By default, sttp-native will **not** be included in the aggregate build of the root project. To include it, define the `STTP_NATIVE` environmental variable before running sbt, e.g.:
