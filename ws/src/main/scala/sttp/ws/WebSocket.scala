@@ -75,7 +75,7 @@ trait WebSocket[F[_]] {
           case Left(close) => (Left(close): Either[WebSocketFrame.Close, T]).unit
           case Right(t)    => (Right(combine(data.payload, t)): Either[WebSocketFrame.Close, T]).unit
         }
-      case Right(data) if data.finalFragment =>
+      case Right(data) /* if data.finalFragment */ =>
         (Right(data.payload): Either[WebSocketFrame.Close, T]).unit
     }
   }
