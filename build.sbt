@@ -41,6 +41,15 @@ val commonJvmSettings = commonSettings ++ Seq(
 
 val commonJsSettings = commonSettings ++ Seq(
   ideSkipProject := true,
+  scalacOptions in Compile ++= {
+    if (isSnapshot.value) Seq.empty
+    else
+      Seq {
+        val dir = project.base.toURI.toString.replaceFirst("[^/]+/?$", "")
+        val url = "https://raw.githubusercontent.com/softwaremill/sttp-shared"
+        s"-P:scalajs:mapSourceURI:$dir->$url/v${version.value}/"
+      }
+  },
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "1.1.0",
     "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
