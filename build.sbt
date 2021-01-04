@@ -1,19 +1,21 @@
 import com.softwaremill.SbtSoftwareMillBrowserTestJS._
 
 val scala2_11 = "2.11.12"
-val scala2_12 = "2.12.11"
+val scala2_12 = "2.12.12"
 val scala2_13 = "2.13.4"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
-val scala3 = List("3.0.0-M1", "3.0.0-M2")
+val scala3_M2 = "3.0.0-M2"
+val scala3_M3 = "3.0.0-M3"
+val scala3 = List(scala3_M2, scala3_M3)
 
-val sttpModelVersion = "1.2.0-RC8"
+val sttpModelVersion = "1.2.0-RC10"
 
 val scalaTestVersion = "3.2.3"
 val scalaNativeTestInterfaceVersion = "0.4.0-M2"
 val zioVersion = "1.0.3"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
-  case _             => "2.4.6"
+  case _             => "2.5.0"
 }
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -172,5 +174,9 @@ lazy val zio = (projectMatrix in file("zio"))
   .jvmPlatform(
     scalaVersions = scala2,
     settings = commonJvmSettings
+  )
+  .jsPlatform(
+    scalaVersions = List(scala2_12, scala2_13),
+    settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
