@@ -121,7 +121,7 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
         try rt()
         catch {
           case e if h.isDefinedAt(e) => h.apply(e)()
-          case e                     => throw e
+          case e: Exception          => throw e
         }
     override def ensure[T](f: () => T, e: => () => Unit): () => T =
       () =>

@@ -71,6 +71,7 @@ class WebSocketStub[S](
     new WebSocket[F] {
       private var state: S = initialState
       private var _isOpen: Boolean = true
+      private var closeFrame: Option[WebSocketFrame.Close] = None
       private var responses = initialResponses
 
       override def monad: MonadError[F] = m
@@ -83,6 +84,7 @@ class WebSocketStub[S](
               responses.headOption match {
                 case Some(Success(close: WebSocketFrame.Close)) =>
                   _isOpen = false
+                  closeFrame = Some(close)
                   monad.unit(close)
                 case Some(Success(response)) =>
                   responses = responses.tail
@@ -94,7 +96,7 @@ class WebSocketStub[S](
                   monad.error(new IllegalStateException("Unexpected 'receive', no more prepared responses."))
               }
             } else {
-              monad.error(new WebSocketClosed())
+              monad.error(WebSocketClosed(closeFrame))
             }
           }
         })

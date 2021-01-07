@@ -4,25 +4,34 @@ import sttp.model.Headers
 import sttp.monad.MonadError
 import sttp.monad.syntax._
 
-/** The `send` and `receive` methods may result in a failed effect, with either one of [[WebSocketException]]
-  * exceptions, or a backend-specific exception.
+/** The `send*` and `receive*` methods may result in a failed effect, with either one of [[WebSocketException]]
+  * exceptions, or a backend-specific exception. Specifically, they will fail with [[WebSocketClosed]] if the
+  * web socket is closed.
+  *
+  * See the `either` and `eitherClose` method to lift web socket closed events to the value level.
   */
 trait WebSocket[F[_]] {
 
-  /** After receiving a close frame, no further interactions with the web socket should happen. Subsequent invocations
-    * of `receive`, as well as `send`, will fail with the [[WebSocketClosed]] exception.
+  /** Receive the next frame from the web socket. This can be a data frame, or a control frame including
+    * [[WebSocketFrame.Close]]. After receiving a close frame, no further interactions with the web socket should
+    * happen.
+    *
+    * However, not all implementations expose the close frame, and web sockets might also get closed without the proper
+    * close frame exchange. In such cases, as well as when invoking `receive`/`send` after receiving a close frame,
+    * this effect will fail with the [[WebSocketClosed]] exception.
     */
   def receive(): F[WebSocketFrame]
   def send(f: WebSocketFrame, isContinuation: Boolean = false): F[Unit]
   def isOpen(): F[Boolean]
 
   /** Receive a single data frame, ignoring others. The frame might be a fragment.
+    * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
-  def receiveDataFrame(pongOnPing: Boolean = true): F[Either[WebSocketFrame.Close, WebSocketFrame.Data[_]]] =
+  def receiveDataFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Data[_]] =
     receive().flatMap {
-      case close: WebSocketFrame.Close => (Left(close): Either[WebSocketFrame.Close, WebSocketFrame.Data[_]]).unit
-      case d: WebSocketFrame.Data[_]   => (Right(d): Either[WebSocketFrame.Close, WebSocketFrame.Data[_]]).unit
+      case close: WebSocketFrame.Close => monad.error(WebSocketClosed(Some(close)))
+      case d: WebSocketFrame.Data[_]   => monad.unit(d)
       case WebSocketFrame.Ping(payload) if pongOnPing =>
         send(WebSocketFrame.Pong(payload)).flatMap(_ => receiveDataFrame(pongOnPing))
       case _ => receiveDataFrame(pongOnPing)
@@ -30,53 +39,78 @@ trait WebSocket[F[_]] {
 
   /** Receive a single text data frame, ignoring others. The frame might be a fragment. To receive whole messages,
     * use [[receiveText]].
+    * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
-  def receiveTextFrame(pongOnPing: Boolean = true): F[Either[WebSocketFrame.Close, WebSocketFrame.Text]] =
+  def receiveTextFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Text] =
     receiveDataFrame(pongOnPing).flatMap {
-      case Left(close)                   => (Left(close): Either[WebSocketFrame.Close, WebSocketFrame.Text]).unit
-      case Right(t: WebSocketFrame.Text) => (Right(t): Either[WebSocketFrame.Close, WebSocketFrame.Text]).unit
-      case _                             => receiveTextFrame(pongOnPing)
+      case t: WebSocketFrame.Text => t.unit
+      case _                      => receiveTextFrame(pongOnPing)
     }
 
   /** Receive a single binary data frame, ignoring others. The frame might be a fragment. To receive whole messages,
     * use [[receiveBinary]].
+    * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
-  def receiveBinaryFrame(pongOnPing: Boolean = true): F[Either[WebSocketFrame.Close, WebSocketFrame.Binary]] =
+  def receiveBinaryFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Binary] =
     receiveDataFrame(pongOnPing).flatMap {
-      case Left(close)                     => (Left(close): Either[WebSocketFrame.Close, WebSocketFrame.Binary]).unit
-      case Right(t: WebSocketFrame.Binary) => (Right(t): Either[WebSocketFrame.Close, WebSocketFrame.Binary]).unit
-      case _                               => receiveBinaryFrame(pongOnPing)
+      case t: WebSocketFrame.Binary => t.unit
+      case _                        => receiveBinaryFrame(pongOnPing)
     }
 
   /** Receive a single text message (which might come from multiple, fragmented frames).
     * Ignores non-text frames and returns combined results.
+    * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
-  def receiveText(pongOnPing: Boolean = true): F[Either[WebSocketFrame.Close, String]] =
+  def receiveText(pongOnPing: Boolean = true): F[String] =
     receiveConcat(() => receiveTextFrame(pongOnPing), _ + _)
 
   /** Receive a single binary message (which might come from multiple, fragmented frames).
     * Ignores non-binary frames and returns combined results.
+    * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
-  def receiveBinary(pongOnPing: Boolean): F[Either[WebSocketFrame.Close, Array[Byte]]] =
+  def receiveBinary(pongOnPing: Boolean): F[Array[Byte]] =
     receiveConcat(() => receiveBinaryFrame(pongOnPing), _ ++ _)
 
+  /** Extracts the received close frame (if available) as the left side of an either, or returns the original result
+    * on the right.
+    *
+    * Will fail with [[WebSocketClosed]] if the web socket is closed, but no close frame is available.
+    *
+    * @param f The effect describing web socket interactions.
+    */
+  def eitherClose[T](f: => F[T]): F[Either[WebSocketFrame.Close, T]] =
+    f.map(t => Right(t): Either[WebSocketFrame.Close, T]).handleError { case WebSocketClosed(Some(close)) =>
+      (Left(close): Either[WebSocketFrame.Close, T]).unit
+    }
+
+  /** Returns an effect computing a:
+    *
+    * - `Left` if the web socket is closed - optionally with the received close frame (if available).
+    * - `Right` with the original result otherwise.
+    *
+    * Will never fail with a [[WebSocketClosed]].
+    *
+    * @param f The effect describing web socket interactions.
+    */
+  def either[T](f: => F[T]): F[Either[Option[WebSocketFrame.Close], T]] =
+    f.map(t => Right(t): Either[Option[WebSocketFrame.Close], T]).handleError { case WebSocketClosed(close) =>
+      (Left(close): Either[Option[WebSocketFrame.Close], T]).unit
+    }
+
   private def receiveConcat[T, U <: WebSocketFrame.Data[T]](
-      receiveSingle: () => F[Either[WebSocketFrame.Close, U]],
+      receiveSingle: () => F[U],
       combine: (T, T) => T
-  ): F[Either[WebSocketFrame.Close, T]] = {
+  ): F[T] = {
     receiveSingle().flatMap {
-      case Left(close) => (Left(close): Either[WebSocketFrame.Close, T]).unit
-      case Right(data) if !data.finalFragment =>
-        receiveConcat(receiveSingle, combine).flatMap {
-          case Left(close) => (Left(close): Either[WebSocketFrame.Close, T]).unit
-          case Right(t)    => (Right(combine(data.payload, t)): Either[WebSocketFrame.Close, T]).unit
+      case data if !data.finalFragment =>
+        receiveConcat(receiveSingle, combine).map { t =>
+          combine(data.payload, t)
         }
-      case Right(data) /* if data.finalFragment */ =>
-        (Right(data.payload): Either[WebSocketFrame.Close, T]).unit
+      case data /* if data.finalFragment */ => data.payload.unit
     }
   }
 

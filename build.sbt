@@ -8,7 +8,7 @@ val scala3_M2 = "3.0.0-M2"
 val scala3_M3 = "3.0.0-M3"
 val scala3 = List(scala3_M2, scala3_M3)
 
-val sttpModelVersion = "1.2.0-RC11"
+val sttpModelVersion = "1.2.0-RC12"
 
 val scalaTestVersion = "3.2.3"
 val scalaNativeTestInterfaceVersion = "0.4.0-M2"
@@ -74,7 +74,7 @@ lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STT
   println("[info] STTP_NATIVE *not* defined, *not* including sttp-native in the aggregate projects")
   scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
     scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v), monix.jvm(v))) ++
-    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), zio.jvm(v))) ++
+    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v))) ++ // TODO , zio.jvm(v)
     List[ProjectReference](
       akka.jvm(scala2_12),
       akka.jvm(scala2_13),
