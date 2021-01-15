@@ -133,7 +133,7 @@ lazy val akka = (projectMatrix in file("akka"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13),
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.10" % "provided"
+      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.11" % "provided"
     )
   )
   .dependsOn(core)
