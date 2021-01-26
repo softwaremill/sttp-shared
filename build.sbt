@@ -8,7 +8,7 @@ val scala3_M2 = "3.0.0-M2"
 val scala3_M3 = "3.0.0-M3"
 val scala3 = List(scala3_M2, scala3_M3)
 
-val sttpModelVersion = "1.2.0"
+val sttpModelVersion = "1.2.1"
 
 val scalaTestVersion = "3.2.3"
 val scalaNativeTestInterfaceVersion = "0.4.0-M2"
