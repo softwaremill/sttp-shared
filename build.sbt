@@ -10,7 +10,7 @@ val scala3 = List(scala3_M2, scala3_M3)
 
 val sttpModelVersion = "1.2.2"
 
-val scalaTestVersion = "3.2.4-M1"
+def scalaTestVersion(scalaVersion: String) = if(scalaVersion == "3.0.0-M2") "3.2.3" else "3.2.4-M1"
 val zioVersion = "1.0.3"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
@@ -36,7 +36,7 @@ val commonJvmSettings = commonSettings ++ Seq(
   scalacOptions ++= Seq("-target:jvm-1.8"),
   ideSkipProject := (scalaVersion.value != scala2_13),
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %% "scalatest" % scalaTestVersion(scalaVersion.value) % Test
   )
 )
 
@@ -53,7 +53,7 @@ val commonJsSettings = commonSettings ++ Seq(
   },
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %%% "scalatest" % scalaTestVersion(scalaVersion.value) % Test
   )
 )
 
@@ -62,7 +62,7 @@ val commonNativeSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
     "org.scala-native" %%% "test-interface" % nativeVersion,
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %%% "scalatest" % scalaTestVersion(scalaVersion.value) % Test
   )
 )
 
