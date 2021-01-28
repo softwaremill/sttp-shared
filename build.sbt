@@ -11,7 +11,6 @@ val scala3 = List(scala3_M2, scala3_M3)
 val sttpModelVersion = "1.2.2"
 
 val scalaTestVersion = "3.2.3"
-val scalaNativeTestInterfaceVersion = "0.4.0-M2"
 val zioVersion = "1.0.3"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
@@ -62,7 +61,7 @@ val commonNativeSettings = commonSettings ++ Seq(
   nativeLinkStubs := true,
   ideSkipProject := true,
   libraryDependencies ++= Seq(
-    "org.scala-native" %%% "test-interface" % scalaNativeTestInterfaceVersion,
+    "org.scala-native" %%% "test-interface" % nativeVersion,
     "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
   )
 )
