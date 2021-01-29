@@ -1,17 +1,14 @@
 import com.softwaremill.SbtSoftwareMillBrowserTestJS._
 
 val scala2_11 = "2.11.12"
-val scala2_12 = "2.12.12"
+val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.4"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
-val scala3_M2 = "3.0.0-M2"
-val scala3_M3 = "3.0.0-M3"
-val scala3 = List(scala3_M2, scala3_M3)
+val scala3 = List("3.0.0-M3")
 
-val sttpModelVersion = "1.2.2"
+val sttpModelVersion = "1.3.1"
 
-val scalaTestVersion = "3.2.3"
-val scalaNativeTestInterfaceVersion = "0.4.0-M2"
+val scalaTestVersion = "3.2.4-M1"
 val zioVersion = "1.0.3"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
@@ -30,15 +27,15 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
     val scalaV = scalaVersion.value
     val current = (sources in (Compile, doc)).value
     if (scala3.contains(scalaV)) Seq() else current
-  }
+  },
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+  )
 )
 
 val commonJvmSettings = commonSettings ++ Seq(
   scalacOptions ++= Seq("-target:jvm-1.8"),
-  ideSkipProject := (scalaVersion.value != scala2_13),
-  libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
-  )
+  ideSkipProject := (scalaVersion.value != scala2_13)
 )
 
 val commonJsSettings = commonSettings ++ Seq(
@@ -53,8 +50,7 @@ val commonJsSettings = commonSettings ++ Seq(
       }
   },
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
+    "org.scala-js" %%% "scalajs-dom" % "1.1.0"
   )
 )
 
@@ -62,8 +58,7 @@ val commonNativeSettings = commonSettings ++ Seq(
   nativeLinkStubs := true,
   ideSkipProject := true,
   libraryDependencies ++= Seq(
-    "org.scala-native" %%% "test-interface" % scalaNativeTestInterfaceVersion,
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
+    "org.scala-native" %%% "test-interface" % nativeVersion
   )
 )
 
@@ -87,7 +82,7 @@ val compileAndTest = "compile->compile;test->test"
 
 lazy val rootProject = (project in file("."))
   .settings(commonSettings: _*)
-  .settings(skip in publish := true, name := "sttp-shared")
+  .settings(skip in publish := true, name := "sttp-shared", scalaVersion := scala2_13)
   .aggregate(projectAggregates: _*)
 
 lazy val core = (projectMatrix in file("core"))
