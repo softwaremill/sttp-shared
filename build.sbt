@@ -9,7 +9,7 @@ val scala3 = List("3.0.0-M3")
 val sttpModelVersion = "1.3.1"
 
 val scalaTestVersion = "3.2.4-M1"
-val zioVersion = "1.0.3"
+val zioVersion = "1.0.4"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.0"
@@ -68,13 +68,15 @@ lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STT
 } else {
   println("[info] STTP_NATIVE *not* defined, *not* including sttp-native in the aggregate projects")
   scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
-    scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v), monix.jvm(v))) ++
-    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v))) ++ // TODO , zio.jvm(v)
+    scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v), monix.jvm(v), zio.jvm(v))) ++
+    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), zio.jvm(v))) ++
     List[ProjectReference](
       akka.jvm(scala2_12),
       akka.jvm(scala2_13),
       monix.js(scala2_12),
-      monix.js(scala2_13)
+      monix.js(scala2_13),
+      zio.js(scala2_12),
+      zio.js(scala2_13)
     )
 }
 
@@ -98,7 +100,7 @@ lazy val core = (projectMatrix in file("core"))
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = List(scala2_11),
+    scalaVersions = scala2,
     settings = commonNativeSettings
   )
 
@@ -116,7 +118,7 @@ lazy val ws = (projectMatrix in file("ws"))
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = List(scala2_11),
+    scalaVersions = scala2,
     settings = commonNativeSettings
   )
   .dependsOn(core)
@@ -167,7 +169,7 @@ lazy val zio = (projectMatrix in file("zio"))
     libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
   )
   .jvmPlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
