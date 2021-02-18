@@ -4,15 +4,15 @@ val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.4"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
-val scala3 = List("3.0.0-M3")
+val scala3 = List("3.0.0-RC1")
 
 val sttpModelVersion = "1.3.3"
 
-val scalaTestVersion = "3.2.4-M1"
+val scalaTestVersion = "3.2.4"
 val zioVersion = "1.0.4-2"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
-  case _             => "2.5.0"
+  case _             => "2.5.2"
 }
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -22,12 +22,6 @@ def dependenciesFor(version: String)(deps: (Option[(Long, Long)] => ModuleID)*):
 
 val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
   organization := "com.softwaremill.sttp.shared",
-  // doc generation is broken in dotty
-  sources in (Compile, doc) := {
-    val scalaV = scalaVersion.value
-    val current = (sources in (Compile, doc)).value
-    if (scala3.contains(scalaV)) Seq() else current
-  },
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % Test
   )
@@ -169,7 +163,7 @@ lazy val zio = (projectMatrix in file("zio"))
     libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
   )
   .jvmPlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2, // ++ scala3
     settings = commonJvmSettings
   )
   .jsPlatform(
