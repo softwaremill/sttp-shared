@@ -12,7 +12,7 @@ val scalaTestVersion = "3.2.4"
 val zioVersion = "1.0.4-2"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
-  case _             => "2.5.2"
+  case _             => "2.5.3"
 }
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -63,7 +63,7 @@ lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STT
   println("[info] STTP_NATIVE *not* defined, *not* including sttp-native in the aggregate projects")
   scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
     scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v), monix.jvm(v), zio.jvm(v))) ++
-    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), zio.jvm(v))) ++
+    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v))) ++
     List[ProjectReference](
       akka.jvm(scala2_12),
       akka.jvm(scala2_13),
@@ -137,7 +137,7 @@ lazy val fs2 = (projectMatrix in file("fs2"))
     )
   )
   .jvmPlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
   .dependsOn(core)
