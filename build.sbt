@@ -8,7 +8,7 @@ val scala3 = List("3.0.0-RC1")
 
 val sttpModelVersion = "1.3.3"
 
-val scalaTestVersion = "3.2.5"
+val scalaTestVersion = "3.2.6"
 val zioVersion = "1.0.4-2"
 val fs2Version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
