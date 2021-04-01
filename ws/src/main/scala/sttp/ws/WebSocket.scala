@@ -4,7 +4,13 @@ import sttp.model.Headers
 import sttp.monad.MonadError
 import sttp.monad.syntax._
 
-/** The `send*` and `receive*` methods may result in a failed effect, with either one of [[WebSocketException]]
+/** Effectful interactions with a web socket. Interactions can happen:
+  *
+  * - on the frame level, by sending and receiving raw [[WebSocketFrame]]s
+  * - using the provided `receive*` methods to obtain concatenated data frames, or string/byte payloads, and the
+  *   `send*` method to send string/binary frames.
+  *
+  * The `send*` and `receive*` methods may result in a failed effect, with either one of [[WebSocketException]]
   * exceptions, or a backend-specific exception. Specifically, they will fail with [[WebSocketClosed]] if the
   * web socket is closed.
   *
@@ -19,13 +25,24 @@ trait WebSocket[F[_]] {
     * However, not all implementations expose the close frame, and web sockets might also get closed without the proper
     * close frame exchange. In such cases, as well as when invoking `receive`/`send` after receiving a close frame,
     * this effect will fail with the [[WebSocketClosed]] exception.
+    *
+    * *Should be only called sequentially!* (from a single thread/fiber). Because web socket frames might be fragmented,
+    * calling this method concurrently might result in threads/fibers receiving fragments of the same frame.
     */
   def receive(): F[WebSocketFrame]
+
+  /** Sends a web socket frame. Can be safely called from multiple threads.
+    *
+    * May result in a failed effect, in case of a network error, or if the socket is closed.
+    */
   def send(f: WebSocketFrame, isContinuation: Boolean = false): F[Unit]
   def isOpen(): F[Boolean]
 
   /** Receive a single data frame, ignoring others. The frame might be a fragment.
     * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
+    *
+    * *Should be only called sequentially!* (from a single thread/fiber).
+    *
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
   def receiveDataFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Data[_]] =
@@ -40,6 +57,9 @@ trait WebSocket[F[_]] {
   /** Receive a single text data frame, ignoring others. The frame might be a fragment. To receive whole messages,
     * use [[receiveText]].
     * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
+    *
+    * *Should be only called sequentially!* (from a single thread/fiber).
+    *
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
   def receiveTextFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Text] =
@@ -51,6 +71,9 @@ trait WebSocket[F[_]] {
   /** Receive a single binary data frame, ignoring others. The frame might be a fragment. To receive whole messages,
     * use [[receiveBinary]].
     * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
+    *
+    * *Should be only called sequentially!* (from a single thread/fiber).
+    *
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
   def receiveBinaryFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Binary] =
@@ -62,6 +85,9 @@ trait WebSocket[F[_]] {
   /** Receive a single text message (which might come from multiple, fragmented frames).
     * Ignores non-text frames and returns combined results.
     * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
+    *
+    * *Should be only called sequentially!* (from a single thread/fiber).
+    *
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
   def receiveText(pongOnPing: Boolean = true): F[String] =
@@ -70,6 +96,9 @@ trait WebSocket[F[_]] {
   /** Receive a single binary message (which might come from multiple, fragmented frames).
     * Ignores non-binary frames and returns combined results.
     * Will fail with [[WebSocketClosed]] if the web socket is closed, or if a close frame is received.
+    *
+    * *Should be only called sequentially!* (from a single thread/fiber).
+    *
     * @param pongOnPing Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
   def receiveBinary(pongOnPing: Boolean): F[Array[Byte]] =
@@ -114,7 +143,16 @@ trait WebSocket[F[_]] {
     }
   }
 
+  /** Sends a web socket frame with the given payload. Can be safely called from multiple threads.
+    *
+    * May result in a failed effect, in case of a network error, or if the socket is closed.
+    */
   def sendText(payload: String): F[Unit] = send(WebSocketFrame.text(payload))
+
+  /** Sends a web socket frame with the given payload. Can be safely called from multiple threads.
+    *
+    * May result in a failed effect, in case of a network error, or if the socket is closed.
+    */
   def sendBinary(payload: Array[Byte]): F[Unit] = send(WebSocketFrame.binary(payload))
 
   /** Idempotent when used sequentially.
