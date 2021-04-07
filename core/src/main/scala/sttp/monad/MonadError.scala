@@ -34,6 +34,8 @@ trait MonadError[F[_]] {
   def suspend[T](t: => F[T]): F[T] = flatten(eval(t))
   def flatten[T](ffa: F[F[T]]): F[T] = flatMap[F[T], T](ffa)(identity)
 
+  def flatTap[T, U](fa: F[T])(f: T => F[U]): F[T] = flatMap(fa)(t => map(f(t))(_ => t))
+
   def fromTry[T](t: Try[T]): F[T] =
     t match {
       case Success(v) => unit(v)
@@ -55,6 +57,7 @@ object syntax {
     def flatMap[B](f: A => F[B])(implicit ME: MonadError[F]): F[B] = ME.flatMap(r)(f)
     def handleError[T](h: PartialFunction[Throwable, F[A]])(implicit ME: MonadError[F]): F[A] = ME.handleError(r)(h)
     def ensure(e: => F[Unit])(implicit ME: MonadError[F]): F[A] = ME.ensure(r, e)
+    def flatTap[B](f: A => F[B])(implicit ME: MonadError[F]): F[A] = ME.flatTap(r)(f)
   }
 
   implicit final class MonadErrorValueOps[F[_], A](private val v: A) extends AnyVal {
