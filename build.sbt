@@ -10,10 +10,11 @@ val sttpModelVersion = "1.4.1"
 
 val scalaTestVersion = "3.2.7"
 val zioVersion = "1.0.5"
-val fs2Version: Option[(Long, Long)] => String = {
+val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.4"
 }
+val fs2_3_version = "3.0.1"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -58,15 +59,17 @@ val commonNativeSettings = commonSettings ++ Seq(
 
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
   println("[info] STTP_NATIVE defined, including sttp-native in the aggregate projects")
-  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio.projectRefs
+  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio.projectRefs
 } else {
   println("[info] STTP_NATIVE *not* defined, *not* including sttp-native in the aggregate projects")
   scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
-    scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v), monix.jvm(v), zio.jvm(v))) ++
-    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2.jvm(v))) ++
+    scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2ce2.jvm(v), monix.jvm(v), zio.jvm(v))) ++
+    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2ce2.jvm(v), fs2.jvm(v))) ++
     List[ProjectReference](
       akka.jvm(scala2_12),
       akka.jvm(scala2_13),
+      fs2.jvm(scala2_12),
+      fs2.jvm(scala2_13),
       monix.js(scala2_12),
       monix.js(scala2_13),
       zio.js(scala2_12),
@@ -129,15 +132,26 @@ lazy val akka = (projectMatrix in file("akka"))
   )
   .dependsOn(core)
 
-lazy val fs2 = (projectMatrix in file("fs2"))
+lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .settings(
-    name := "fs2",
+    name := "fs2-ce2",
     libraryDependencies ++= dependenciesFor(scalaVersion.value)(
-      "co.fs2" %% "fs2-io" % fs2Version(_)
+      "co.fs2" %% "fs2-io" % fs2_2_version(_)
     )
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
+    settings = commonJvmSettings
+  )
+  .dependsOn(core)
+
+lazy val fs2 = (projectMatrix in file("fs2"))
+  .settings(
+    name := "fs2",
+    libraryDependencies += "co.fs2" %% "fs2-io" % fs2_3_version
+  )
+  .jvmPlatform(
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings
   )
   .dependsOn(core)
