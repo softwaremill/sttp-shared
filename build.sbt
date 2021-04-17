@@ -6,7 +6,7 @@ val scala2_13 = "2.13.5"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala3 = List("3.0.0-RC2")
 
-val sttpModelVersion = "1.4.2"
+val sttpModelVersion = "1.4.3"
 
 val scalaTestVersion = "3.2.7"
 val zioVersion = "1.0.6"
@@ -38,10 +38,11 @@ val commonJsSettings = commonSettings ++ Seq(
   Compile / scalacOptions ++= {
     if (isSnapshot.value) Seq.empty
     else {
-      val mapSourcePrefix = if (ScalaArtifacts.isScala3(scalaVersion.value))
-         "-scalajs-mapSourceURI"
-       else
-         "-P:scalajs:mapSourceURI"
+      val mapSourcePrefix =
+        if (ScalaArtifacts.isScala3(scalaVersion.value))
+          "-scalajs-mapSourceURI"
+        else
+          "-P:scalajs:mapSourceURI"
 
       Seq {
         val dir = project.base.toURI.toString.replaceFirst("[^/]+/?$", "")
