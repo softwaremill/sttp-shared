@@ -6,7 +6,7 @@ val scala2_13 = "2.13.5"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala3 = List("3.0.0-RC2")
 
-val sttpModelVersion = "1.4.2"
+val sttpModelVersion = "1.4.3"
 
 val scalaTestVersion = "3.2.7"
 val zioVersion = "1.0.6"
@@ -37,15 +37,22 @@ val commonJsSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   Compile / scalacOptions ++= {
     if (isSnapshot.value) Seq.empty
-    else
+    else {
+      val mapSourcePrefix =
+        if (ScalaArtifacts.isScala3(scalaVersion.value))
+          "-scalajs-mapSourceURI"
+        else
+          "-P:scalajs:mapSourceURI"
+
       Seq {
         val dir = project.base.toURI.toString.replaceFirst("[^/]+/?$", "")
         val url = "https://raw.githubusercontent.com/softwaremill/sttp-shared"
-        s"-P:scalajs:mapSourceURI:$dir->$url/v${version.value}/"
+        s"$mapSourcePrefix:$dir->$url/v${version.value}/"
       }
+    }
   },
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "1.1.0"
+    ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13)
   )
 )
 
@@ -65,6 +72,7 @@ lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STT
   scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
     scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2ce2.jvm(v), monix.jvm(v), zio.jvm(v))) ++
     scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2ce2.jvm(v), fs2.jvm(v))) ++
+    scala3.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
     List[ProjectReference](
       akka.jvm(scala2_12),
       akka.jvm(scala2_13),
@@ -93,7 +101,7 @@ lazy val core = (projectMatrix in file("core"))
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
@@ -111,7 +119,7 @@ lazy val ws = (projectMatrix in file("ws"))
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
