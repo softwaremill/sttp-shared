@@ -185,11 +185,11 @@ lazy val zio = (projectMatrix in file("zio"))
     libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
   )
   .jvmPlatform(
-    scalaVersions = scala2, // ++ scala3
+    scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13),
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
