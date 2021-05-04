@@ -6,7 +6,7 @@ val scala2_13 = "2.13.5"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala3 = List("3.0.0-RC3")
 
-val sttpModelVersion = "1.4.5"
+val sttpModelVersion = "1.4.6"
 
 val scalaTestVersion = "3.2.8"
 val zioVersion = "1.0.7"
