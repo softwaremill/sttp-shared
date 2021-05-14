@@ -4,17 +4,17 @@ val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.5"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
-val scala3 = List("3.0.0-RC3")
+val scala3 = List("3.0.0")
 
-val sttpModelVersion = "1.4.6"
+val sttpModelVersion = "1.4.7"
 
-val scalaTestVersion = "3.2.8"
+val scalaTestVersion = "3.2.9"
 val zioVersion = "1.0.7"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
-  case _             => "2.5.5"
+  case _             => "2.5.6"
 }
-val fs2_3_version = "3.0.2"
+val fs2_3_version = "3.0.3"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -167,14 +167,14 @@ lazy val fs2 = (projectMatrix in file("fs2"))
 lazy val monix = (projectMatrix in file("monix"))
   .settings(
     name := "monix",
-    libraryDependencies += "io.monix" %%% "monix" % "3.3.0"
+    libraryDependencies += "io.monix" %%% "monix" % "3.4.0"
   )
   .jvmPlatform(
-    scalaVersions = scala2,
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13),
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
@@ -185,11 +185,11 @@ lazy val zio = (projectMatrix in file("zio"))
     libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
   )
   .jvmPlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = List(scala2_12, scala2_13),
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
