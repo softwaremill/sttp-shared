@@ -2,14 +2,14 @@ import com.softwaremill.SbtSoftwareMillBrowserTestJS._
 
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.13"
-val scala2_13 = "2.13.5"
+val scala2_13 = "2.13.6"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala3 = List("3.0.0")
 
 val sttpModelVersion = "1.4.7"
 
 val scalaTestVersion = "3.2.9"
-val zioVersion = "1.0.7"
+val zioVersion = "1.0.8"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.6"
@@ -151,6 +151,10 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
+  .jsPlatform(
+    scalaVersions = scala2 ++ scala3,
+    settings = commonJsSettings ++ browserChromeTestSettings
+  )
   .dependsOn(core)
 
 lazy val fs2 = (projectMatrix in file("fs2"))
@@ -161,6 +165,10 @@ lazy val fs2 = (projectMatrix in file("fs2"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings
+  )
+  .jsPlatform(
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
 
@@ -185,11 +193,11 @@ lazy val zio = (projectMatrix in file("zio"))
     libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
   )
   .jvmPlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13),
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
