@@ -37,4 +37,4 @@ We offer commercial support for sttp and related technologies, as well as develo
 
 ## Copyright
 
-Copyright (C) 2017-2020 SoftwareMill [https://softwaremill.com](https://softwaremill.com).
+Copyright (C) 2020-2021 SoftwareMill [https://softwaremill.com](https://softwaremill.com).
