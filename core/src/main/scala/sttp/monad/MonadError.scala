@@ -43,6 +43,8 @@ trait MonadError[F[_]] {
     }
 
   def ensure[T](f: F[T], e: => F[Unit]): F[T]
+
+  def blocking[T](t: => T): F[T] = eval(t)
 }
 
 trait MonadAsyncError[F[_]] extends MonadError[F] {
@@ -162,4 +164,6 @@ class FutureMonad(implicit ec: ExecutionContext) extends MonadAsyncError[Future]
     }
     p.future
   }
+
+  override def blocking[T](t: => T): Future[T] = Future(scala.concurrent.blocking(t))
 }

@@ -1,4 +1,5 @@
 import com.softwaremill.SbtSoftwareMillBrowserTestJS._
+import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.13"
@@ -97,7 +98,13 @@ lazy val rootProject = (project in file("."))
 
 lazy val core = (projectMatrix in file("core"))
   .settings(
-    name := "core"
+    name := "core",
+    mimaBinaryIssueFilters ++= {
+      if (scalaVersion.value == scala2_11) {
+        // excluding this for 2.11 as the `blocking` method will only ever be called in recompiled library code
+        Seq(ProblemFilters.exclude[ReversedMissingMethodProblem]("sttp.monad.MonadError.blocking"))
+      } else Nil
+    }
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
