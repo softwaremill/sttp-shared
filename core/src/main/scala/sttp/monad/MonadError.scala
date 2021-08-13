@@ -47,6 +47,10 @@ trait MonadError[F[_]] {
   def blocking[T](t: => T): F[T] = eval(t)
 }
 
+object MonadError {
+  def apply[F[_]: MonadError]: MonadError[F] = implicitly[MonadError[F]]
+}
+
 trait MonadAsyncError[F[_]] extends MonadError[F] {
   def async[T](register: (Either[Throwable, T] => Unit) => Canceler): F[T]
 }
