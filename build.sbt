@@ -25,7 +25,10 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
   organization := "com.softwaremill.sttp.shared",
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % Test
-  )
+  ),
+  mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
+  mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value },
+  versionScheme := Some("semver-spec")
 )
 
 val commonJvmSettings = commonSettings ++ Seq(
