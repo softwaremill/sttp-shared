@@ -3,17 +3,15 @@ package sttp.monad
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 
-/** A basic monad interface, allowing abstract manipulation of effectful values, represented using the type
-  * constructor `F`.
+/** A basic monad interface, allowing abstract manipulation of effectful values, represented using the type constructor
+  * `F`.
   *
-  * A computation yielding results of type `T` is represented as a value of type `F[T]`. Such values:
-  * * can be transformed using `map`
-  * * can be run in sequence using `flatMap`
-  * * errors can be handled using `handleError`
-  * * and new computations can be created using `unit`, `eval` and `suspend`
+  * A computation yielding results of type `T` is represented as a value of type `F[T]`. Such values: * can be
+  * transformed using `map` * can be run in sequence using `flatMap` * errors can be handled using `handleError` * and
+  * new computations can be created using `unit`, `eval` and `suspend`
   *
-  * To use convenient `.map`, `.flatMap` syntax, make sure an implicit instance of `MonadError` is in scope, and
-  * import: `import sttp.monad.syntax._`. This adds the appropriate extension methods.
+  * To use convenient `.map`, `.flatMap` syntax, make sure an implicit instance of `MonadError` is in scope, and import:
+  * `import sttp.monad.syntax._`. This adds the appropriate extension methods.
   */
 trait MonadError[F[_]] {
   def unit[T](t: T): F[T]

@@ -13,17 +13,23 @@ object WebSocketFrame {
 
   /** A text frame with fragmentation or extension bits.
     *
-    * @param payload a text fragment.
-    * @param finalFragment flag indicating whether or not this is the final fragment
-    * @param rsv optional extension bits
+    * @param payload
+    *   a text fragment.
+    * @param finalFragment
+    *   flag indicating whether or not this is the final fragment
+    * @param rsv
+    *   optional extension bits
     */
   case class Text(payload: String, finalFragment: Boolean, rsv: Option[Int]) extends Data[String]
 
   /** A binary frame with fragmentation or extension bits.
     *
-    * @param payload a binary payload
-    * @param finalFragment flag indicating whether or not this is the last fragment
-    * @param rsv optional extension bits
+    * @param payload
+    *   a binary payload
+    * @param finalFragment
+    *   flag indicating whether or not this is the last fragment
+    * @param rsv
+    *   optional extension bits
     */
   case class Binary(payload: Array[Byte], finalFragment: Boolean, rsv: Option[Int]) extends Data[Array[Byte]]
 

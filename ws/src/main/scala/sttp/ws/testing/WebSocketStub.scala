@@ -6,11 +6,10 @@ import sttp.ws.{WebSocket, WebSocketClosed, WebSocketFrame}
 
 import scala.util.{Failure, Success, Try}
 
-/** A stub for websockets that uses a queue of frames which are returned when the client calls
-  * [[WebSocket.receive]].
+/** A stub for websockets that uses a queue of frames which are returned when the client calls [[WebSocket.receive]].
   *
-  * New messages can be added to queue in reaction to [[WebSocket.send]] being invoked, by specifying the
-  * behavior using one of the [[thenRespond]] variants.
+  * New messages can be added to queue in reaction to [[WebSocket.send]] being invoked, by specifying the behavior using
+  * one of the [[thenRespond]] variants.
   *
   * For more complex cases, please provide your own implementation of [[WebSocket]].
   */
@@ -41,11 +40,11 @@ class WebSocketStub[S](
       (_, frame) => ((), addReceived(frame))
     )
 
-  /** Creates a stub that has the same initial responses, but replaces the function that adds responses to be
-    * received in reaction to [[WebSocket.send]] being invoked.
+  /** Creates a stub that has the same initial responses, but replaces the function that adds responses to be received
+    * in reaction to [[WebSocket.send]] being invoked.
     *
-    * More powerful version of [[thenRespond()]], as the given function can additionally use state and implement stateful
-    * logic for computing response messages.
+    * More powerful version of [[thenRespond()]], as the given function can additionally use state and implement
+    * stateful logic for computing response messages.
     */
   def thenRespondS[S2](initial: S2)(
       onSend: (S2, WebSocketFrame) => (S2, List[WebSocketFrame])
@@ -55,13 +54,13 @@ class WebSocketStub[S](
       (s2, lf.map(Try(_)))
     }
 
-  /** Creates a stub that has the same initial responses, but replaces the function that adds responses to be
-    * received in reaction to [[WebSocket.send]] being invoked.
+  /** Creates a stub that has the same initial responses, but replaces the function that adds responses to be received
+    * in reaction to [[WebSocket.send]] being invoked.
     *
     * More powerful version of:
-    * - [[thenRespond()]], as the given function can additionally use state and implement stateful
-    * logic for computing response messages.
-    * - [[thenRespondS()]] which allows receiving to fail with an exception.
+    *   - [[thenRespond()]], as the given function can additionally use state and implement stateful logic for computing
+    *     response messages.
+    *   - [[thenRespondS()]] which allows receiving to fail with an exception.
     */
   def thenRespondWithS[S2](initial: S2)(
       onSend: (S2, WebSocketFrame) => (S2, List[Try[WebSocketFrame]])
@@ -121,9 +120,9 @@ class WebSocketStub[S](
 
 object WebSocketStub {
 
-  /** Creates a stub which will return the given responses when [[WebSocket.receive]] is called by the client.
-    * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently
-    * calling one of the [[WebSocketStub.thenRespond]] methods.
+  /** Creates a stub which will return the given responses when [[WebSocket.receive]] is called by the client. More
+    * messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently calling one
+    * of the [[WebSocketStub.thenRespond]] methods.
     */
   def initialReceiveWith(
       events: List[Try[WebSocketFrame]]
@@ -131,9 +130,9 @@ object WebSocketStub {
     new WebSocketStub(events, (), (_, _) => ((), List.empty))
   }
 
-  /** Creates a stub which will return the given messages when [[WebSocket.receive]] is called by the client.
-    * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently
-    * calling one of the [[WebSocketStub.thenRespond]] methods.
+  /** Creates a stub which will return the given messages when [[WebSocket.receive]] is called by the client. More
+    * messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently calling one
+    * of the [[WebSocketStub.thenRespond]] methods.
     */
   def initialReceive(
       messages: List[WebSocketFrame]
@@ -141,9 +140,9 @@ object WebSocketStub {
     initialReceiveWith(messages.map(m => Success(m)))
   }
 
-  /** Creates a stub which won't return any initial frames when [[WebSocket.receive]] is called by the client.
-    * More messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently
-    * calling one of the [[WebSocketStub.thenRespond]] methods.
+  /** Creates a stub which won't return any initial frames when [[WebSocket.receive]] is called by the client. More
+    * messages can be enqueued to be returned by the stub in response to [[WebSocket.send]] by subsequently calling one
+    * of the [[WebSocketStub.thenRespond]] methods.
     */
   def noInitialReceive: WebSocketStub[Unit] = initialReceiveWith(List.empty)
 }
