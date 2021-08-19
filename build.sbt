@@ -1,21 +1,23 @@
 import com.softwaremill.SbtSoftwareMillBrowserTestJS._
+import com.softwaremill.SbtSoftwareMillCommon.commonSmlBuildSettings
+import com.softwaremill.Publish.{updateDocs, ossPublishSettings}
 import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
-val scala2_12 = "2.12.13"
+val scala2_12 = "2.12.14"
 val scala2_13 = "2.13.6"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
-val scala3 = List("3.0.0")
+val scala3 = List("3.0.1")
 
-val sttpModelVersion = "1.4.7"
+val sttpModelVersion = "1.4.10"
 
 val scalaTestVersion = "3.2.9"
-val zioVersion = "1.0.8"
+val zioVersion = "1.0.10"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
-  case _             => "2.5.6"
+  case _             => "2.5.9"
 }
-val fs2_3_version = "3.0.3"
+val fs2_3_version = "3.1.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
