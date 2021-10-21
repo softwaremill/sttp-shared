@@ -9,7 +9,7 @@ val scala2_13 = "2.13.6"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala3 = List("3.1.0")
 
-val sttpModelVersion = "1.4.15"
+val sttpModelVersion = "1.4.16"
 
 val scalaTestVersion = "3.2.10"
 val zioVersion = "1.0.12"
@@ -58,7 +58,7 @@ val commonJsSettings = commonSettings ++ Seq(
     }
   },
   libraryDependencies ++= Seq(
-    ("org.scala-js" %%% "scalajs-dom" % "1.2.0").cross(CrossVersion.for3Use2_13)
+    "org.scala-js" %%% "scalajs-dom" % "2.0.0"
   )
 )
 
