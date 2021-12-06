@@ -29,14 +29,15 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % Test
   ),
-  mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
-  mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value },
+  mimaPreviousArtifacts := Set.empty,
   versionScheme := Some("semver-spec")
 )
 
 val commonJvmSettings = commonSettings ++ Seq(
   scalacOptions ++= Seq("-target:jvm-1.8"),
-  ideSkipProject := (scalaVersion.value != scala2_13)
+  ideSkipProject := (scalaVersion.value != scala2_13),
+  mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
+  mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value }
 )
 
 val commonJsSettings = commonSettings ++ Seq(
