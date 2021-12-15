@@ -198,7 +198,7 @@ lazy val zio1 = (projectMatrix in file("zio1"))
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
-    settings = commonJvmSettings
+    settings = commonJvmSettings ++ Seq(mimaPreviousArtifacts := Set.empty) // for now, there are no previous artifacts
   )
   .jsPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
