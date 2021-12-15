@@ -12,7 +12,8 @@ val scala3 = List("3.1.0")
 val sttpModelVersion = "1.4.18"
 
 val scalaTestVersion = "3.2.10"
-val zioVersion = "1.0.13"
+val zio1Version = "1.0.13"
+val zio2Version = "2.0.0-RC1"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
@@ -71,27 +72,15 @@ val commonNativeSettings = commonSettings ++ Seq(
   )
 )
 
+lazy val allProjectRefs =
+  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs
+
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
   println("[info] STTP_NATIVE defined, including sttp-native in the aggregate projects")
-  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio.projectRefs
+  allProjectRefs
 } else {
   println("[info] STTP_NATIVE *not* defined, *not* including sttp-native in the aggregate projects")
-  scala2.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
-    scala2.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2ce2.jvm(v), zio.jvm(v))) ++
-    scala3.flatMap(v => List[ProjectReference](core.jvm(v), ws.jvm(v), fs2ce2.jvm(v), fs2.jvm(v))) ++
-    scala3.flatMap(v => List[ProjectReference](core.js(v), ws.js(v))) ++
-    List[ProjectReference](
-      akka.jvm(scala2_12),
-      akka.jvm(scala2_13),
-      fs2.jvm(scala2_12),
-      fs2.jvm(scala2_13),
-      monix.jvm(scala2_12),
-      monix.jvm(scala2_13),
-      monix.js(scala2_12),
-      monix.js(scala2_13),
-      zio.js(scala2_12),
-      zio.js(scala2_13)
-    )
+  allProjectRefs.filterNot(_.toString.contains("Native"))
 }
 
 val compileAndTest = "compile->compile;test->test"
@@ -202,10 +191,25 @@ lazy val monix = (projectMatrix in file("monix"))
   )
   .dependsOn(core)
 
+lazy val zio1 = (projectMatrix in file("zio1"))
+  .settings(
+    name := "zio1",
+    libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zio1Version, "dev.zio" %% "zio" % zio1Version)
+  )
+  .jvmPlatform(
+    scalaVersions = scala2 ++ scala3,
+    settings = commonJvmSettings ++ Seq(mimaPreviousArtifacts := Set.empty) // for now, there are no previous artifacts
+  )
+  .jsPlatform(
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    settings = commonJsSettings ++ browserChromeTestSettings
+  )
+  .dependsOn(core)
+
 lazy val zio = (projectMatrix in file("zio"))
   .settings(
     name := "zio",
-    libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zioVersion, "dev.zio" %% "zio" % zioVersion)
+    libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zio2Version, "dev.zio" %% "zio" % zio2Version)
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
