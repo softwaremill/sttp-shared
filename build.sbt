@@ -137,9 +137,10 @@ lazy val akka = (projectMatrix in file("akka"))
     name := "akka"
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_12, scala2_13),
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.18" % "provided"
+      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.18" % "provided",
+      mimaPreviousArtifacts := Set.empty
     )
   )
   .dependsOn(core)
