@@ -139,8 +139,7 @@ lazy val akka = (projectMatrix in file("akka"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.18" % "provided",
-      mimaPreviousArtifacts := Set.empty
+      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.18" % "provided"
     )
   )
   .dependsOn(core)
@@ -199,7 +198,7 @@ lazy val zio1 = (projectMatrix in file("zio1"))
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
-    settings = commonJvmSettings ++ Seq(mimaPreviousArtifacts := Set.empty) // for now, there are no previous artifacts
+    settings = commonJvmSettings
   )
   .jsPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
