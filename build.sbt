@@ -109,7 +109,7 @@ lazy val core = (projectMatrix in file("core"))
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonNativeSettings
   )
 
@@ -127,7 +127,7 @@ lazy val ws = (projectMatrix in file("ws"))
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = scala2,
+    scalaVersions = scala2 ++ scala3,
     settings = commonNativeSettings
   )
   .dependsOn(core)
