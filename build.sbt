@@ -19,6 +19,7 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case _             => "2.5.9"
 }
 val fs2_3_version = "3.2.4"
+val armeriaVersion = "1.14.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -140,6 +141,18 @@ lazy val akka = (projectMatrix in file("akka"))
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
       libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.18" % "provided"
+    )
+  )
+  .dependsOn(core)
+
+lazy val armeria = (projectMatrix in file("armeria"))
+  .settings(
+    name := "armeria"
+  )
+  .jvmPlatform(
+    scalaVersions = scala2 ++ scala3,
+    settings = commonJvmSettings ++ Seq(
+      libraryDependencies += "com.linecorp.armeria" % "armeria" % armeriaVersion
     )
   )
   .dependsOn(core)
