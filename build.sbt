@@ -5,20 +5,21 @@ import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.15"
-val scala2_13 = "2.13.7"
+val scala2_13 = "2.13.8"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
-val scala3 = List("3.1.0")
+val scala3 = List("3.1.2")
 
-val sttpModelVersion = "1.4.21"
+val sttpModelVersion = "1.4.25"
 
-val scalaTestVersion = "3.2.10"
-val zio1Version = "1.0.13"
-val zio2Version = "2.0.0-RC1"
+val scalaTestVersion = "3.2.12"
+val zio1Version = "1.0.14"
+val zio2Version = "2.0.0-RC5"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
 }
-val fs2_3_version = "3.2.4"
+val fs2_3_version = "3.2.7"
+val armeriaVersion = "1.16.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -73,7 +74,7 @@ val commonNativeSettings = commonSettings ++ Seq(
 )
 
 lazy val allProjectRefs =
-  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs
+  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs
 
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
   println("[info] STTP_NATIVE defined, including sttp-native in the aggregate projects")
@@ -139,7 +140,19 @@ lazy val akka = (projectMatrix in file("akka"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.18" % "provided"
+      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.19" % "provided"
+    )
+  )
+  .dependsOn(core)
+
+lazy val armeria = (projectMatrix in file("armeria"))
+  .settings(
+    name := "armeria"
+  )
+  .jvmPlatform(
+    scalaVersions = scala2 ++ scala3,
+    settings = commonJvmSettings ++ Seq(
+      libraryDependencies += "com.linecorp.armeria" % "armeria" % armeriaVersion
     )
   )
   .dependsOn(core)
