@@ -19,7 +19,7 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case _             => "2.5.9"
 }
 val fs2_3_version = "3.2.10"
-val armeriaVersion = "1.17.0"
+val armeriaVersion = "1.17.1"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
