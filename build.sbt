@@ -158,15 +158,14 @@ lazy val armeria = (projectMatrix in file("armeria"))
   .dependsOn(core)
 
 lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
-  .settings(
-    name := "fs2-ce2",
-    libraryDependencies ++= dependenciesFor(scalaVersion.value)(
-      "co.fs2" %%% "fs2-io" % fs2_2_version(_)
-    )
-  )
+  .settings(name := "fs2-ce2")
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
-    settings = commonJvmSettings
+    settings = commonJvmSettings ++ Seq(
+      libraryDependencies ++= dependenciesFor(scalaVersion.value)(
+        "co.fs2" %%% "fs2-io" % fs2_2_version(_)
+      )
+    )
   )
   .jsPlatform(
     scalaVersions = scala2 ++ scala3,
@@ -175,13 +174,12 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .dependsOn(core)
 
 lazy val fs2 = (projectMatrix in file("fs2"))
-  .settings(
-    name := "fs2",
-    libraryDependencies += "co.fs2" %%% "fs2-io" % fs2_3_version
-  )
+  .settings(name := "fs2")
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
-    settings = commonJvmSettings
+    settings = commonJvmSettings ++ Seq(
+      libraryDependencies += "co.fs2" %%% "fs2-io" % fs2_3_version
+    )
   )
   .jsPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
