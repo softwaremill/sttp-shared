@@ -19,7 +19,7 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case _             => "2.5.9"
 }
 val fs2_3_version = "3.3.0"
-val armeriaVersion = "1.20.0"
+val armeriaVersion = "1.20.1"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -193,7 +193,7 @@ lazy val fs2 = (projectMatrix in file("fs2"))
   .nativePlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonNativeSettings
-  )  
+  )
   .dependsOn(core)
 
 lazy val monix = (projectMatrix in file("monix"))
