@@ -13,6 +13,9 @@ jobs:
     env:
       STTP_NATIVE: 1
     steps:
+    - name: Set Java Opts
+      run: |
+        echo "JAVA_OPTS=-Xmx3000M -Dsbt.task.timings=true" >> $GITHUB_ENV
     - name: Checkout
       uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -46,6 +49,9 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-20.04
     steps:
+      - name: Set Java Opts
+        run: |
+          echo "JAVA_OPTS=-Xmx3000M -Dsbt.task.timings=true" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -80,6 +86,9 @@ jobs:
     env:
       STTP_NATIVE: 1
     steps:
+      - name: Set Java Opts
+        run: |
+          echo "JAVA_OPTS=-Xmx3000M -Dsbt.task.timings=true" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up JDK 11
