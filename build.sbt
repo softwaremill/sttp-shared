@@ -244,3 +244,14 @@ lazy val zio = (projectMatrix in file("zio"))
     settings = commonNativeSettings
   )
   .dependsOn(core)
+
+lazy val vertx = (projectMatrix in file("vertx"))
+  .settings(
+    name := "vertx",
+    libraryDependencies ++= Seq("io.vertx" % "vertx-core" % "4.3.4")
+  )
+  .jvmPlatform(
+    scalaVersions = scala2 ++ scala3,
+    settings = commonJvmSettings
+  )
+  .dependsOn(core)
