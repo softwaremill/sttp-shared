@@ -11,7 +11,7 @@ val scala3 = List("3.2.1")
 
 val sttpModelVersion = "1.5.4"
 
-val scalaTestVersion = "3.2.14"
+val scalaTestVersion = "3.2.15"
 val zio1Version = "1.0.17"
 val zio2Version = "2.0.5"
 val fs2_2_version: Option[(Long, Long)] => String = {
