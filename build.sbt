@@ -7,9 +7,10 @@ val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.17"
 val scala2_13 = "2.13.10"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
+val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.2.1")
 
-val sttpModelVersion = "1.5.4"
+val sttpModelVersion = "1.5.5"
 
 val scalaTestVersion = "3.2.15"
 val zio1Version = "1.0.17"
@@ -106,11 +107,11 @@ lazy val core = (projectMatrix in file("core"))
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonNativeSettings
   )
 
@@ -124,11 +125,11 @@ lazy val ws = (projectMatrix in file("ws"))
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonNativeSettings
   )
   .dependsOn(core)
@@ -138,7 +139,7 @@ lazy val akka = (projectMatrix in file("akka"))
     name := "akka"
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
       libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.20" % "provided"
     )
@@ -173,7 +174,7 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
     )
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
@@ -181,17 +182,17 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
 lazy val fs2 = (projectMatrix in file("fs2"))
   .settings(name := "fs2", libraryDependencies += "co.fs2" %%% "fs2-core" % fs2_3_version)
   .jvmPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
       libraryDependencies += "co.fs2" %% "fs2-io" % fs2_3_version
     )
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonNativeSettings
   )
   .dependsOn(core)
@@ -202,11 +203,11 @@ lazy val monix = (projectMatrix in file("monix"))
     libraryDependencies += "io.monix" %%% "monix" % "3.4.1"
   )
   .jvmPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
@@ -221,7 +222,7 @@ lazy val zio1 = (projectMatrix in file("zio1"))
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .dependsOn(core)
@@ -236,11 +237,11 @@ lazy val zio = (projectMatrix in file("zio"))
     settings = commonJvmSettings
   )
   .jsPlatform(
-    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = scala2 ++ scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonNativeSettings
   )
   .dependsOn(core)
