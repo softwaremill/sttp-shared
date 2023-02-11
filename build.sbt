@@ -14,12 +14,12 @@ val sttpModelVersion = "1.5.5"
 
 val scalaTestVersion = "3.2.15"
 val zio1Version = "1.0.18"
-val zio2Version = "2.0.7"
+val zio2Version = "2.0.8"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
 }
-val fs2_3_version = "3.6.0"
+val fs2_3_version = "3.6.1"
 val armeriaVersion = "1.21.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
