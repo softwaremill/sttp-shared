@@ -74,7 +74,7 @@ val commonNativeSettings = commonSettings ++ Seq(
 )
 
 lazy val allProjectRefs =
-  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs
+  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs ++ vertx.projectRefs
 
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
   println("[info] STTP_NATIVE defined, including sttp-native in the aggregate projects")
