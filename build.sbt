@@ -75,7 +75,7 @@ val commonNativeSettings = commonSettings ++ Seq(
 )
 
 lazy val allProjectRefs =
-  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs
+  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs ++ vertx.projectRefs
 
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
   println("[info] STTP_NATIVE defined, including sttp-native in the aggregate projects")
@@ -243,5 +243,17 @@ lazy val zio = (projectMatrix in file("zio"))
   .nativePlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonNativeSettings
+  )
+  .dependsOn(core)
+
+lazy val vertx = (projectMatrix in file("vertx"))
+  .settings(
+    name := "vertx"
+  )
+  .jvmPlatform(
+    scalaVersions = List(scala2_12, scala2_13) ++ scala3,
+    settings = commonJvmSettings ++ Seq(
+      libraryDependencies += "io.vertx" % "vertx-core" % "4.4.0"
+    )
   )
   .dependsOn(core)
