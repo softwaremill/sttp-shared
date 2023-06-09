@@ -4,7 +4,7 @@ import com.softwaremill.Publish.ossPublishSettings
 import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
-val scala2_12 = "2.12.17"
+val scala2_12 = "2.12.18"
 val scala2_13 = "2.13.11"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
