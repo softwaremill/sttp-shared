@@ -146,8 +146,6 @@ lazy val akka = (projectMatrix in file("akka"))
   )
   .dependsOn(core)
 
-ThisBuild / resolvers += "Apache Snapshots".at("https://repository.apache.org/content/repositories/snapshots/") // Remove once Pekko makes a proper release
-
 lazy val pekko = (projectMatrix in file("pekko"))
   .settings(
     name := "pekko"
@@ -155,7 +153,7 @@ lazy val pekko = (projectMatrix in file("pekko"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "0.0.0+26621-44d03df6-SNAPSHOT" % "provided"
+      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.0.0" % "provided"
     )
   )
   .dependsOn(core)
