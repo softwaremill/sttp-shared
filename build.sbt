@@ -153,7 +153,7 @@ lazy val pekko = (projectMatrix in file("pekko"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.0.0" % "provided"
+      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.0.1" % "provided"
     )
   )
   .dependsOn(core)
