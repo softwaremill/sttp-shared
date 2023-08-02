@@ -19,7 +19,7 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
 }
-val fs2_3_version = "3.7.0"
+val fs2_3_version = "3.8.0"
 val armeriaVersion = "1.24.2"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -153,7 +153,7 @@ lazy val pekko = (projectMatrix in file("pekko"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.0.0" % "provided"
+      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.0.1" % "provided"
     )
   )
   .dependsOn(core)
