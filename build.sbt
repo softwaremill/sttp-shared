@@ -8,7 +8,7 @@ val scala2_12 = "2.12.18"
 val scala2_13 = "2.13.11"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
-val scala3 = List("3.3.0")
+val scala3 = List("3.3.1")
 
 val sttpModelVersion = "1.6.0"
 
