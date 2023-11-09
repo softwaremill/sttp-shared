@@ -5,21 +5,21 @@ import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.18"
-val scala2_13 = "2.13.11"
+val scala2_13 = "2.13.12"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
-val scala3 = List("3.3.0")
+val scala3 = List("3.3.1")
 
 val sttpModelVersion = "1.6.0"
 
-val scalaTestVersion = "3.2.16"
+val scalaTestVersion = "3.2.17"
 val zio1Version = "1.0.18"
 val zio2Version = "2.0.10"
 val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
 }
-val fs2_3_version = "3.8.0"
+val fs2_3_version = "3.9.3"
 val armeriaVersion = "1.25.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -62,7 +62,7 @@ val commonJsSettings = commonSettings ++ Seq(
     }
   },
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "2.6.0"
+    "org.scala-js" %%% "scalajs-dom" % "2.8.0"
   )
 )
 
