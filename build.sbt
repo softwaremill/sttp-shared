@@ -39,6 +39,7 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
 val commonJvmSettings = commonSettings ++ Seq(
   scalacOptions ++= Seq("-target:jvm-1.8"),
   ideSkipProject := (scalaVersion.value != scala2_13),
+  bspEnabled := !ideSkipProject.value,
   mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
   mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value }
 )
@@ -196,7 +197,10 @@ lazy val fs2 = (projectMatrix in file("fs2"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "co.fs2" %% "fs2-io" % fs2_3_version
+      libraryDependencies ++= Seq(
+        "co.fs2" %% "fs2-io" % fs2_3_version,
+        "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+      )
     )
   )
   .jsPlatform(
