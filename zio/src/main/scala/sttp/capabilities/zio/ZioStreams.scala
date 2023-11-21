@@ -26,7 +26,7 @@ object ZioStreams extends ZioStreams {
         byteCount
     }
 
-  def scanChunksAccum[S, R, A](inputStream: ZStream[R, Throwable, A], initState: => S)(
+  private def scanChunksAccum[S, R, A](inputStream: ZStream[R, Throwable, A], initState: => S)(
       f: (S, Chunk[A]) => S
   )(implicit trace: Trace): ZStream[R, Throwable, A] =
     ZStream.succeed(initState).flatMap { state =>
