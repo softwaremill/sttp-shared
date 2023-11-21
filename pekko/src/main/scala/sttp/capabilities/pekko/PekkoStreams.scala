@@ -1,7 +1,7 @@
 package sttp.capabilities.pekko
 
 import org.apache.pekko
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 import sttp.capabilities.Streams
 
 import pekko.stream.scaladsl.{Flow, Source}
@@ -16,7 +16,7 @@ object PekkoStreams extends PekkoStreams {
     stream
       .limitWeighted(maxBytes)(_.length.toLong)
       .mapError { 
-        case _: pekko.stream.StreamLimitReachedException => StreamMaxLengthExceeded(maxBytes) 
+        case _: pekko.stream.StreamLimitReachedException => StreamMaxLengthExceededException(maxBytes) 
       }
   }
 }

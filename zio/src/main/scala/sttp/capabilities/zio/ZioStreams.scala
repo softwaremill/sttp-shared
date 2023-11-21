@@ -1,6 +1,6 @@
 package sttp.capabilities.zio
 
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 import sttp.capabilities.Streams
 import zio.Chunk
 import zio.Trace
@@ -21,7 +21,7 @@ object ZioStreams extends ZioStreams {
     scanChunksAccum(stream, initState = 0L) { case (accumulatedBytes, chunk) =>
       val byteCount = accumulatedBytes + chunk.size
       if (byteCount > maxBytes)
-        throw new StreamMaxLengthExceeded(maxBytes)
+        throw new StreamMaxLengthExceededException(maxBytes)
       else
         byteCount
     }

@@ -5,7 +5,7 @@ import cats.effect.unsafe.implicits.global
 import fs2._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 
 class Fs2StreamsTest extends AsyncFlatSpec with Matchers {
   behavior of "Fs2Streams"
@@ -17,7 +17,7 @@ class Fs2StreamsTest extends AsyncFlatSpec with Matchers {
     val inputStream = Stream.fromIterator[IO](Iterator.fill[Byte](inputByteCount)('5'.toByte), chunkSize = 1024)
 
     // when
-    val stream = Fs2Streams.apply[IO].limitBytes(inputStream, maxBytes)
+    val stream = Fs2Streams.limitBytes(inputStream, maxBytes)
 
     // then
     stream.fold(0L)((acc, _) => acc + 1).compile.lastOrError.unsafeToFuture().map { count =>
@@ -32,13 +32,13 @@ class Fs2StreamsTest extends AsyncFlatSpec with Matchers {
     val inputStream = Stream.fromIterator[IO](Iterator.fill[Byte](inputByteCount)('5'.toByte), chunkSize = 1024)
 
     // when
-    val stream = Fs2Streams.apply[IO].limitBytes(inputStream, maxBytes)
+    val stream = Fs2Streams.limitBytes(inputStream, maxBytes)
 
     // then
     stream.compile.drain
       .map(_ => fail("Unexpected end of stream."))
       .handleErrorWith {
-        case StreamMaxLengthExceeded(limit) =>
+        case StreamMaxLengthExceededException(limit) =>
           IO(limit shouldBe maxBytes)
         case other =>
           IO(fail(s"Unexpected failure cause: $other"))

@@ -7,7 +7,7 @@ import org.apache.pekko.util.ByteString
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -56,6 +56,6 @@ class PekkoStreamsTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll 
     val _ = for (_ <- 1 to 31) yield probe.requestNext()
 
     // then
-    probe.request(1).expectError(StreamMaxLengthExceeded(maxBytes))
+    probe.request(1).expectError(StreamMaxLengthExceededException(maxBytes))
   }
 }

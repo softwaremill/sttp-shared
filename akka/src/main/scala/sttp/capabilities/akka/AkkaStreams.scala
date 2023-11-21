@@ -3,7 +3,7 @@ package sttp.capabilities.akka
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 import sttp.capabilities.Streams
 
 trait AkkaStreams extends Streams[AkkaStreams] {
@@ -17,7 +17,7 @@ object AkkaStreams extends AkkaStreams {
     stream
       .limitWeighted(maxBytes)(_.length.toLong)
       .mapError { case _: akka.stream.StreamLimitReachedException =>
-        StreamMaxLengthExceeded(maxBytes)
+        StreamMaxLengthExceededException(maxBytes)
       }
   }
 }

@@ -7,14 +7,14 @@ import akka.util.ByteString
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class PekkoStreamsTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
+class AkkaStreamsTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
-  behavior of "PekkoStreams"
+  behavior of "AkkaStreams"
   implicit lazy val system: ActorSystem = ActorSystem()
 
   override def afterAll(): Unit = {
@@ -61,6 +61,6 @@ class PekkoStreamsTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll 
     val _ = for (_ <- 1 to 31) yield probe.requestNext()
 
     // then
-    probe.request(1).expectError(StreamMaxLengthExceeded(maxBytes))
+    probe.request(1).expectError(StreamMaxLengthExceededException(maxBytes))
   }
 }

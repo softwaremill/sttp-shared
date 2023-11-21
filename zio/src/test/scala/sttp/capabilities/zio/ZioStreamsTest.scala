@@ -2,7 +2,7 @@ package sttp.capabilities.zio
 
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.StreamMaxLengthExceededException
 import zio._
 import zio.stream.ZStream
 
@@ -43,7 +43,7 @@ class ZioStreamsTest extends AsyncFlatSpec with Matchers {
         stream.runLast
           .flatMap(_ => ZIO.succeed(fail("Unexpected end of stream")))
           .catchSome {
-            case StreamMaxLengthExceeded(limit) =>
+            case StreamMaxLengthExceededException(limit) =>
               ZIO.succeed(limit shouldBe maxBytes)
             case other =>
               ZIO.succeed(fail(s"Unexpected failure cause: $other"))
