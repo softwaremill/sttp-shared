@@ -1,12 +1,14 @@
 package sttp.capabilities.zio
 
-import sttp.capabilities.Streams
-import zio.stream.{Stream, ZStream}
-import zio.stream.ZChannel
-import zio.Trace
-import zio.Chunk
-import scala.util.control.NonFatal
 import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.Streams
+import zio.Chunk
+import zio.Trace
+import zio.stream.Stream
+import zio.stream.ZChannel
+import zio.stream.ZStream
+
+import scala.util.control.NonFatal
 
 trait ZioStreams extends Streams[ZioStreams] {
   override type BinaryStream = Stream[Throwable, Byte]

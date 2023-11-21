@@ -2,10 +2,9 @@ package sttp.capabilities.zio
 
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import zio.stream.ZStream
-import zio._
 import sttp.capabilities.StreamMaxLengthExceeded
-import org.scalatest.compatible.Assertion
+import zio._
+import zio.stream.ZStream
 
 class ZioStreamsTest extends AsyncFlatSpec with Matchers {
   behavior of "ZioStreams"
@@ -22,12 +21,13 @@ class ZioStreamsTest extends AsyncFlatSpec with Matchers {
     val stream = ZioStreams.limitBytes(inputStream, maxBytes)
 
     // then
-    Unsafe.unsafe(implicit u => r.unsafe.runToFuture(
-    stream.runFold(0L)((acc, _) => acc + 1).map { count =>
-      count shouldBe inputByteCount
-    }))
+    Unsafe.unsafe(implicit u =>
+      r.unsafe.runToFuture(stream.runFold(0L)((acc, _) => acc + 1).map { count =>
+        count shouldBe inputByteCount
+      })
+    )
   }
-  
+
   it should "Fail stream if limit is exceeded" in {
     // given
     val inputByteCount = 8192
@@ -38,19 +38,17 @@ class ZioStreamsTest extends AsyncFlatSpec with Matchers {
     val stream = ZioStreams.limitBytes(inputStream, maxBytes)
 
     // then
-    Unsafe.unsafe(implicit u => r.unsafe.runToFuture(
-    stream
-      .runLast
-      .flatMap(_ => ZIO.succeed(fail("Unexpected end of stream")))
-      .catchSome {
-        case StreamMaxLengthExceeded(limit) =>
-          ZIO.succeed(limit shouldBe maxBytes)
-        case other =>
-          ZIO.succeed(fail(s"Unexpected failure cause: $other"))
-      }
-    ))
-
+    Unsafe.unsafe(implicit u =>
+      r.unsafe.runToFuture(
+        stream.runLast
+          .flatMap(_ => ZIO.succeed(fail("Unexpected end of stream")))
+          .catchSome {
+            case StreamMaxLengthExceeded(limit) =>
+              ZIO.succeed(limit shouldBe maxBytes)
+            case other =>
+              ZIO.succeed(fail(s"Unexpected failure cause: $other"))
+          }
+      )
+    )
   }
-
-
 }

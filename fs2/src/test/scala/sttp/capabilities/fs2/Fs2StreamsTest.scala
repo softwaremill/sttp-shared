@@ -1,11 +1,10 @@
 package sttp.capabilities.fs2
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
 import cats.effect.IO
-import fs2._
 import cats.effect.unsafe.implicits.global
+import fs2._
 import org.scalatest.flatspec.AsyncFlatSpec
+import org.scalatest.matchers.should.Matchers
 import sttp.capabilities.StreamMaxLengthExceeded
 
 class Fs2StreamsTest extends AsyncFlatSpec with Matchers {

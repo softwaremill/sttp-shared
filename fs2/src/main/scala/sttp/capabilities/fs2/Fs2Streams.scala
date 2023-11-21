@@ -1,10 +1,10 @@
 package sttp.capabilities.fs2
 
-import fs2.Stream
-import sttp.capabilities.Streams
 import cats.MonadThrow
 import fs2.Pull
+import fs2.Stream
 import sttp.capabilities.StreamMaxLengthExceeded
+import sttp.capabilities.Streams
 
 trait Fs2Streams[F[_]] extends Streams[Fs2Streams[F]] {
   override type BinaryStream = Stream[F, Byte]
