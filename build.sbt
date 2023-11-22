@@ -9,7 +9,8 @@ val scala2_13 = "2.13.12"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.1")
-
+val akkaVersion = "2.6.20"
+val pekkoVersion = "1.0.1"
 val sttpModelVersion = "1.6.0"
 
 val scalaTestVersion = "3.2.17"
@@ -39,6 +40,7 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
 val commonJvmSettings = commonSettings ++ Seq(
   scalacOptions ++= Seq("-target:jvm-1.8"),
   ideSkipProject := (scalaVersion.value != scala2_13),
+  bspEnabled := !ideSkipProject.value,
   mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
   mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value }
 )
@@ -141,7 +143,10 @@ lazy val akka = (projectMatrix in file("akka"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.20" % "provided"
+      libraryDependencies ++= Seq(
+        "com.typesafe.akka" %% "akka-stream" % akkaVersion % "provided",
+        "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
+      )
     )
   )
   .dependsOn(core)
@@ -153,7 +158,10 @@ lazy val pekko = (projectMatrix in file("pekko"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.0.1" % "provided"
+      libraryDependencies ++= Seq(
+      "org.apache.pekko" %% "pekko-stream" % pekkoVersion % "provided",
+      "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion % Test
+      )
     )
   )
   .dependsOn(core)
@@ -196,7 +204,10 @@ lazy val fs2 = (projectMatrix in file("fs2"))
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "co.fs2" %% "fs2-io" % fs2_3_version
+      libraryDependencies ++= Seq(
+        "co.fs2" %% "fs2-io" % fs2_3_version,
+        "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+      )
     )
   )
   .jsPlatform(
