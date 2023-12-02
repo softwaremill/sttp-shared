@@ -10,7 +10,7 @@ val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.1")
 val akkaVersion = "2.6.20"
-val pekkoVersion = "1.0.1"
+val pekkoVersion = "1.0.2"
 val sttpModelVersion = "1.6.0"
 
 val scalaTestVersion = "3.2.17"
@@ -159,8 +159,8 @@ lazy val pekko = (projectMatrix in file("pekko"))
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
       libraryDependencies ++= Seq(
-      "org.apache.pekko" %% "pekko-stream" % pekkoVersion % "provided",
-      "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion % Test
+        "org.apache.pekko" %% "pekko-stream" % pekkoVersion % "provided",
+        "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion % Test
       )
     )
   )
