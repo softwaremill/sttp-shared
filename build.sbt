@@ -13,7 +13,7 @@ val akkaVersion = "2.6.20"
 val pekkoVersion = "1.0.2"
 val sttpModelVersion = "1.6.0"
 
-val scalaTestVersion = "3.2.17"
+val scalaTestVersion = "3.2.18"
 val zio1Version = "1.0.18"
 val zio2Version = "2.0.10"
 val fs2_2_version: Option[(Long, Long)] => String = {
