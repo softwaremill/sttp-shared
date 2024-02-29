@@ -56,13 +56,16 @@ trait MonadAsyncError[F[_]] extends MonadError[F] {
 case class Canceler(cancel: () => Unit)
 
 object syntax {
-  implicit final class MonadErrorOps[F[_], A](r: => F[A]) {
-    def map[B](f: A => B)(implicit ME: MonadError[F]): F[B] = ME.map(r)(f)
-    def flatMap[B](f: A => F[B])(implicit ME: MonadError[F]): F[B] = ME.flatMap(r)(f)
-    def handleError[T](h: PartialFunction[Throwable, F[A]])(implicit ME: MonadError[F]): F[A] = ME.handleError(r)(h)
-    def ensure(e: => F[Unit])(implicit ME: MonadError[F]): F[A] = ME.ensure(r, e)
-    def flatTap[B](f: A => F[B])(implicit ME: MonadError[F]): F[A] = ME.flatTap(r)(f)
+  final class MonadErrorOps[F[_], A](private val r: () => F[A]) extends AnyVal {
+    def map[B](f: A => B)(implicit ME: MonadError[F]): F[B] = ME.map(r())(f)
+    def flatMap[B](f: A => F[B])(implicit ME: MonadError[F]): F[B] = ME.flatMap(r())(f)
+    def handleError[T](h: PartialFunction[Throwable, F[A]])(implicit ME: MonadError[F]): F[A] = ME.handleError(r())(h)
+    def ensure(e: => F[Unit])(implicit ME: MonadError[F]): F[A] = ME.ensure(r(), e)
+    def flatTap[B](f: A => F[B])(implicit ME: MonadError[F]): F[A] = ME.flatTap(r())(f)
   }
+
+  implicit def monadErrorOps[F[_], A](r: => F[A]): MonadErrorOps[F, A] = 
+    new MonadErrorOps[F, A](() => r)
 
   implicit final class MonadErrorValueOps[F[_], A](private val v: A) extends AnyVal {
     def unit(implicit ME: MonadError[F]): F[A] = ME.unit(v)
