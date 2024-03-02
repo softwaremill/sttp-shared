@@ -36,7 +36,12 @@ class PekkoStreamsTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll 
     val stream = PekkoStreams.limitBytes(inputStream, maxBytes)
 
     // then
-    stream.fold(0L)((acc, bs) => acc + bs.length).runWith(TestSink[Long]()).request(1).expectNext(inputByteCount.toLong).expectComplete()
+    stream
+      .fold(0L)((acc, bs) => acc + bs.length)
+      .runWith(TestSink[Long]())
+      .request(1)
+      .expectNext(inputByteCount.toLong)
+      .expectComplete()
   }
 
   it should "Fail stream if limit is exceeded" in {
@@ -51,7 +56,7 @@ class PekkoStreamsTest extends AnyFlatSpec with Matchers with BeforeAndAfterAll 
       Source.fromIterator(() => iterator.grouped(chunkSize).map(group => ByteString(group.toArray)))
 
     // when
-    val stream = PekkoStreams.limitBytes(inputStream, maxBytes)    
+    val stream = PekkoStreams.limitBytes(inputStream, maxBytes)
     val probe = stream.runWith(TestSink[ByteString]())
     val _ = for (_ <- 1 to 31) yield probe.requestNext()
 

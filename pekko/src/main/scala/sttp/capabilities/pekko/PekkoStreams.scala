@@ -15,8 +15,8 @@ object PekkoStreams extends PekkoStreams {
   def limitBytes(stream: Source[ByteString, Any], maxBytes: Long): Source[ByteString, Any] = {
     stream
       .limitWeighted(maxBytes)(_.length.toLong)
-      .mapError { 
-        case _: pekko.stream.StreamLimitReachedException => StreamMaxLengthExceededException(maxBytes) 
+      .mapError { case _: pekko.stream.StreamLimitReachedException =>
+        StreamMaxLengthExceededException(maxBytes)
       }
   }
 }
