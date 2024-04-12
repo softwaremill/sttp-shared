@@ -69,7 +69,6 @@ val commonJsSettings = commonSettings ++ Seq(
 )
 
 val commonNativeSettings = commonSettings ++ Seq(
-  nativeLinkStubs := true,
   ideSkipProject := true,
   libraryDependencies ++= Seq(
     "org.scala-native" %%% "test-interface" % nativeVersion
