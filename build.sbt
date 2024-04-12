@@ -21,7 +21,7 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case _             => "2.5.9"
 }
 val fs2_3_version = "3.10.0"
-val armeriaVersion = "1.27.2"
+val armeriaVersion = "1.27.3"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -276,7 +276,7 @@ lazy val vertx = (projectMatrix in file("vertx"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "io.vertx" % "vertx-core" % "4.5.4"
+      libraryDependencies += "io.vertx" % "vertx-core" % "4.5.7"
     )
   )
   .dependsOn(core)
