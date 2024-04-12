@@ -5,10 +5,10 @@ import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.19"
-val scala2_13 = "2.13.12"
+val scala2_13 = "2.13.13"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
-val scala3 = List("3.3.1")
+val scala3 = List("3.3.3")
 val akkaVersion = "2.6.20"
 val pekkoVersion = "1.0.2"
 val sttpModelVersion = "1.6.0"
@@ -20,8 +20,8 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
 }
-val fs2_3_version = "3.9.4"
-val armeriaVersion = "1.27.1"
+val fs2_3_version = "3.10.0"
+val armeriaVersion = "1.27.3"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -276,7 +276,7 @@ lazy val vertx = (projectMatrix in file("vertx"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "io.vertx" % "vertx-core" % "4.4.4"
+      libraryDependencies += "io.vertx" % "vertx-core" % "4.5.7"
     )
   )
   .dependsOn(core)
