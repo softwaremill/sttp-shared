@@ -3,15 +3,14 @@ import com.softwaremill.SbtSoftwareMillCommon.commonSmlBuildSettings
 import com.softwaremill.Publish.ossPublishSettings
 import com.typesafe.tools.mima.core._
 
-val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.19"
 val scala2_13 = "2.13.13"
-val scala2 = List(scala2_11, scala2_12, scala2_13)
+val scala2 = List(scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.3")
 val akkaVersion = "2.6.20"
 val pekkoVersion = "1.0.2"
-val sttpModelVersion = "1.6.0"
+val sttpModelVersion = "1.7.10"
 
 val scalaTestVersion = "3.2.18"
 val zio1Version = "1.0.18"
@@ -38,7 +37,6 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
 )
 
 val commonJvmSettings = commonSettings ++ Seq(
-  scalacOptions ++= Seq("-target:jvm-1.8"),
   ideSkipProject := (scalaVersion.value != scala2_13),
   bspEnabled := !ideSkipProject.value,
   mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
@@ -69,7 +67,6 @@ val commonJsSettings = commonSettings ++ Seq(
 )
 
 val commonNativeSettings = commonSettings ++ Seq(
-  nativeLinkStubs := true,
   ideSkipProject := true,
   libraryDependencies ++= Seq(
     "org.scala-native" %%% "test-interface" % nativeVersion
@@ -95,15 +92,7 @@ lazy val rootProject = (project in file("."))
   .aggregate(projectAggregates: _*)
 
 lazy val core = (projectMatrix in file("core"))
-  .settings(
-    name := "core",
-    mimaBinaryIssueFilters ++= {
-      if (scalaVersion.value == scala2_11) {
-        // excluding this for 2.11 as the `blocking` method will only ever be called in recompiled library code
-        Seq(ProblemFilters.exclude[ReversedMissingMethodProblem]("sttp.monad.MonadError.blocking"))
-      } else Nil
-    }
-  )
+  .settings(name := "core")
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
@@ -214,10 +203,6 @@ lazy val fs2 = (projectMatrix in file("fs2"))
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
-  .nativePlatform(
-    scalaVersions = scala2alive ++ scala3,
-    settings = commonNativeSettings
-  )
   .dependsOn(core)
 
 lazy val monix = (projectMatrix in file("monix"))
@@ -262,10 +247,6 @@ lazy val zio = (projectMatrix in file("zio"))
   .jsPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
-  )
-  .nativePlatform(
-    scalaVersions = scala2alive ++ scala3,
-    settings = commonNativeSettings
   )
   .dependsOn(core)
 
