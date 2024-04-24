@@ -11,7 +11,7 @@ val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.3")
 val akkaVersion = "2.6.20"
 val pekkoVersion = "1.0.2"
-val sttpModelVersion = "1.6.0"
+val sttpModelVersion = "1.7.10"
 
 val scalaTestVersion = "3.2.18"
 val zio1Version = "1.0.18"
