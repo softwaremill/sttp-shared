@@ -213,10 +213,6 @@ lazy val fs2 = (projectMatrix in file("fs2"))
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
   )
-  .nativePlatform(
-    scalaVersions = scala2alive ++ scala3,
-    settings = commonNativeSettings
-  )
   .dependsOn(core)
 
 lazy val monix = (projectMatrix in file("monix"))
@@ -261,10 +257,6 @@ lazy val zio = (projectMatrix in file("zio"))
   .jsPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
-  )
-  .nativePlatform(
-    scalaVersions = scala2alive ++ scala3,
-    settings = commonNativeSettings
   )
   .dependsOn(core)
 
