@@ -4,8 +4,8 @@ import com.softwaremill.Publish.ossPublishSettings
 import com.typesafe.tools.mima.core._
 
 val scala2_11 = "2.11.12"
-val scala2_12 = "2.12.18"
-val scala2_13 = "2.13.12"
+val scala2_12 = "2.12.19"
+val scala2_13 = "2.13.13"
 val scala2 = List(scala2_11, scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.3")
@@ -20,8 +20,8 @@ val fs2_2_version: Option[(Long, Long)] => String = {
   case Some((2, 11)) => "2.1.0"
   case _             => "2.5.9"
 }
-val fs2_3_version = "3.10.2"
-val armeriaVersion = "1.27.3"
+val fs2_3_version = "3.10.0"
+val armeriaVersion = "1.28.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
@@ -267,7 +267,7 @@ lazy val vertx = (projectMatrix in file("vertx"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "io.vertx" % "vertx-core" % "4.5.4"
+      libraryDependencies += "io.vertx" % "vertx-core" % "4.5.7"
     )
   )
   .dependsOn(core)
