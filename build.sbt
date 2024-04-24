@@ -3,10 +3,9 @@ import com.softwaremill.SbtSoftwareMillCommon.commonSmlBuildSettings
 import com.softwaremill.Publish.ossPublishSettings
 import com.typesafe.tools.mima.core._
 
-val scala2_11 = "2.11.12"
 val scala2_12 = "2.12.19"
 val scala2_13 = "2.13.13"
-val scala2 = List(scala2_11, scala2_12, scala2_13)
+val scala2 = List(scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.3")
 val akkaVersion = "2.6.20"
@@ -38,7 +37,6 @@ val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
 )
 
 val commonJvmSettings = commonSettings ++ Seq(
-  scalacOptions ++= Seq("-target:jvm-1.8"),
   ideSkipProject := (scalaVersion.value != scala2_13),
   bspEnabled := !ideSkipProject.value,
   mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
@@ -94,15 +92,7 @@ lazy val rootProject = (project in file("."))
   .aggregate(projectAggregates: _*)
 
 lazy val core = (projectMatrix in file("core"))
-  .settings(
-    name := "core",
-    mimaBinaryIssueFilters ++= {
-      if (scalaVersion.value == scala2_11) {
-        // excluding this for 2.11 as the `blocking` method will only ever be called in recompiled library code
-        Seq(ProblemFilters.exclude[ReversedMissingMethodProblem]("sttp.monad.MonadError.blocking"))
-      } else Nil
-    }
-  )
+  .settings(name := "core")
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
