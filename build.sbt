@@ -15,10 +15,7 @@ val sttpModelVersion = "1.7.10"
 val scalaTestVersion = "3.2.18"
 val zio1Version = "1.0.18"
 val zio2Version = "2.0.22"
-val fs2_2_version: Option[(Long, Long)] => String = {
-  case Some((2, 11)) => "2.1.0"
-  case _             => "2.5.9"
-}
+val fs2_2_version = "2.5.9"
 val fs2_3_version = "3.10.0"
 val armeriaVersion = "1.28.4"
 
@@ -170,16 +167,12 @@ lazy val armeria = (projectMatrix in file("armeria"))
 lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .settings(
     name := "fs2-ce2",
-    libraryDependencies ++= dependenciesFor(scalaVersion.value)(
-      "co.fs2" %%% "fs2-core" % fs2_2_version(_)
-    )
+    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2_2_version
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies ++= dependenciesFor(scalaVersion.value)(
-        "co.fs2" %% "fs2-io" % fs2_2_version(_)
-      )
+      libraryDependencies +="co.fs2" %% "fs2-io" % fs2_2_version
     )
   )
   .jsPlatform(
