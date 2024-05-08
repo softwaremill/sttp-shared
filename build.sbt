@@ -7,7 +7,7 @@ val scala2_12 = "2.12.19"
 val scala2_13 = "2.13.14"
 val scala2 = List(scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
-val scala3 = List("3.3.3")
+val scala3 = List("3.4.1")
 val akkaVersion = "2.6.20"
 val pekkoVersion = "1.0.2"
 val sttpModelVersion = "1.7.10"
@@ -172,7 +172,7 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies +="co.fs2" %% "fs2-io" % fs2_2_version
+      libraryDependencies += "co.fs2" %% "fs2-io" % fs2_2_version
     )
   )
   .jsPlatform(
