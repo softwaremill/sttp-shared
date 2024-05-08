@@ -15,7 +15,7 @@ val sttpModelVersion = "1.7.10"
 val scalaTestVersion = "3.2.18"
 val zio1Version = "1.0.18"
 val zio2Version = "2.0.22"
-val fs2_2_version = "2.5.9"
+val fs2_2_version = "2.5.11"
 val fs2_3_version = "3.10.0"
 val armeriaVersion = "1.28.4"
 
@@ -172,7 +172,7 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies +="co.fs2" %% "fs2-io" % fs2_2_version
+      libraryDependencies += "co.fs2" %% "fs2-io" % fs2_2_version
     )
   )
   .jsPlatform(
