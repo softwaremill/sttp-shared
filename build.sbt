@@ -12,7 +12,7 @@ val akkaVersion = "2.6.20"
 val pekkoVersion = "1.0.2"
 val sttpModelVersion = "1.7.11"
 
-val scalaTestVersion = "3.2.18"
+val scalaTestVersion = "3.2.19"
 val zio1Version = "1.0.18"
 val zio2Version = "2.1.4"
 val fs2_2_version = "2.5.12"
