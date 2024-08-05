@@ -56,7 +56,7 @@ trait WebSocket[F[_]] {
           // closed. This would cause this call to fail with an exception, while the WS was properly used. That's why
           // we ignore the exception here, and allow for closure (or actual I/O exception) to be discovered via the
           // subsequent `receive`.
-          .handleError(_ => monad.unit(()))
+          .handleError { case _ => monad.unit(()) }
           .flatMap(_ => receiveDataFrame(pongOnPing))
       case _ => receiveDataFrame(pongOnPing)
     }
