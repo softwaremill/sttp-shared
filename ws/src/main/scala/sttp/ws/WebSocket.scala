@@ -51,7 +51,13 @@ trait WebSocket[F[_]] {
       case close: WebSocketFrame.Close => monad.error(WebSocketClosed(Some(close)))
       case d: WebSocketFrame.Data[_]   => monad.unit(d)
       case WebSocketFrame.Ping(payload) if pongOnPing =>
-        send(WebSocketFrame.Pong(payload)).flatMap(_ => receiveDataFrame(pongOnPing))
+        send(WebSocketFrame.Pong(payload))
+          // https://github.com/softwaremill/sttp/issues/2236: after a Ping frame is received, the WS might have become
+          // closed. This would cause this call to fail with an exception, while the WS was properly used. That's why
+          // we ignore the exception here, and allow for closure (or actual I/O exception) to be discovered via the
+          // subsequent `receive`.
+          .handleError(_ => monad.unit(()))
+          .flatMap(_ => receiveDataFrame(pongOnPing))
       case _ => receiveDataFrame(pongOnPing)
     }
 
