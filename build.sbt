@@ -27,7 +27,7 @@ def dependenciesFor(version: String)(deps: (Option[(Long, Long)] => ModuleID)*):
 val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
   organization := "com.softwaremill.sttp.shared",
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
   ),
   mimaPreviousArtifacts := Set.empty,
   versionScheme := Some("semver-spec")
@@ -59,14 +59,15 @@ val commonJsSettings = commonSettings ++ Seq(
     }
   },
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "2.8.0"
+    "org.scala-js" %%% "scalajs-dom" % "2.8.0",
+    "io.github.cquiroz" %%% "scala-java-time" % "2.6.0" % Test
   )
 )
 
 val commonNativeSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
-    "org.scala-native" %%% "test-interface" % nativeVersion
+    "io.github.cquiroz" %%% "scala-java-time" % "2.6.0" % Test
   )
 )
 
@@ -231,7 +232,12 @@ lazy val zio1 = (projectMatrix in file("zio1"))
 lazy val zio = (projectMatrix in file("zio"))
   .settings(
     name := "zio",
-    libraryDependencies ++= Seq("dev.zio" %%% "zio-streams" % zio2Version, "dev.zio" %%% "zio" % zio2Version)
+    libraryDependencies ++= Seq("dev.zio" %%% "zio-streams" % zio2Version, "dev.zio" %%% "zio" % zio2Version) ++
+      Seq(
+        "dev.zio" %%% "zio-test" % zio2Version % Test,
+        "dev.zio" %%% "zio-test-sbt" % zio2Version % Test
+      ),
+    testFrameworks += TestFrameworks.ZIOTest
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
@@ -240,6 +246,10 @@ lazy val zio = (projectMatrix in file("zio"))
   .jsPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
+  )
+  .nativePlatform(
+    scalaVersions = scala3,
+    settings = commonNativeSettings
   )
   .dependsOn(core)
 
