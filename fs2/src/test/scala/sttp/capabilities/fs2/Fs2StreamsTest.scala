@@ -1,13 +1,22 @@
 package sttp.capabilities.fs2
 
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
+import cats.effect.unsafe
 import fs2._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import sttp.capabilities.StreamMaxLengthExceededException
 
 class Fs2StreamsTest extends AsyncFlatSpec with Matchers {
+
+  implicit val runtime: unsafe.IORuntime = unsafe.IORuntime(
+    executionContext,
+    executionContext,
+    unsafe.IORuntime.global.scheduler,
+    unsafe.IORuntime.global.shutdown,
+    unsafe.IORuntime.global.config
+  )
+
   behavior of "Fs2Streams"
 
   it should "Pass all bytes if limit is not exceeded" in {
