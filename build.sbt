@@ -232,12 +232,7 @@ lazy val zio1 = (projectMatrix in file("zio1"))
 lazy val zio = (projectMatrix in file("zio"))
   .settings(
     name := "zio",
-    libraryDependencies ++= Seq("dev.zio" %%% "zio-streams" % zio2Version, "dev.zio" %%% "zio" % zio2Version) ++
-      Seq(
-        "dev.zio" %%% "zio-test" % zio2Version % Test,
-        "dev.zio" %%% "zio-test-sbt" % zio2Version % Test
-      ),
-    testFrameworks += TestFrameworks.ZIOTest
+    libraryDependencies ++= Seq("dev.zio" %%% "zio-streams" % zio2Version, "dev.zio" %%% "zio" % zio2Version)
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,

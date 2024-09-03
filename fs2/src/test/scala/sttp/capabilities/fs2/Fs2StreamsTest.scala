@@ -2,20 +2,16 @@ package sttp.capabilities.fs2
 
 import cats.effect.IO
 import cats.effect.unsafe
+import cats.effect.unsafe.implicits.global
 import fs2._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import sttp.capabilities.StreamMaxLengthExceededException
+import scala.concurrent.ExecutionContext
 
 class Fs2StreamsTest extends AsyncFlatSpec with Matchers {
 
-  implicit val runtime: unsafe.IORuntime = unsafe.IORuntime(
-    executionContext,
-    executionContext,
-    unsafe.IORuntime.global.scheduler,
-    unsafe.IORuntime.global.shutdown,
-    unsafe.IORuntime.global.config
-  )
+  override implicit val executionContext: ExecutionContext = unsafe.IORuntime.global.compute
 
   behavior of "Fs2Streams"
 
