@@ -243,7 +243,7 @@ lazy val zio = (projectMatrix in file("zio"))
     settings = commonJsSettings ++ browserChromeTestSettings
   )
   .nativePlatform(
-    scalaVersions = scala3,
+    scalaVersions = scala2alive ++ scala3,
     settings = commonNativeSettings
   )
   .dependsOn(core)
