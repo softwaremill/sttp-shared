@@ -8,6 +8,7 @@ import zio.stream.ZStream
 import scala.concurrent.ExecutionContext
 
 class ZioStreamsTest extends AsyncFlatSpec with Matchers {
+  // #432: this is needed by ScalaJS tests
   override implicit val executionContext: ExecutionContext = Runtime.defaultExecutor.asExecutionContext
 
   behavior of "ZioStreams"

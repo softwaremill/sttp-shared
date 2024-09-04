@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext
 
 class Fs2StreamsTest extends AsyncFlatSpec with Matchers {
 
+  // #432: this is needed by ScalaJS tests
   override implicit val executionContext: ExecutionContext = unsafe.IORuntime.global.compute
 
   behavior of "Fs2Streams"
