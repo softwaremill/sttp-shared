@@ -5,8 +5,11 @@ import org.scalatest.matchers.should.Matchers
 import sttp.capabilities.StreamMaxLengthExceededException
 import zio._
 import zio.stream.ZStream
+import scala.concurrent.ExecutionContext
 
 class ZioStreamsTest extends AsyncFlatSpec with Matchers {
+  override implicit val executionContext: ExecutionContext = Runtime.defaultExecutor.asExecutionContext
+
   behavior of "ZioStreams"
 
   implicit val r: Runtime[Any] = Runtime.default

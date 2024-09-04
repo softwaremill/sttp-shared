@@ -27,7 +27,7 @@ def dependenciesFor(version: String)(deps: (Option[(Long, Long)] => ModuleID)*):
 val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
   organization := "com.softwaremill.sttp.shared",
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
   ),
   mimaPreviousArtifacts := Set.empty,
   versionScheme := Some("semver-spec")
@@ -59,14 +59,15 @@ val commonJsSettings = commonSettings ++ Seq(
     }
   },
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "2.8.0"
+    "org.scala-js" %%% "scalajs-dom" % "2.8.0",
+    "io.github.cquiroz" %%% "scala-java-time" % "2.6.0" % Test
   )
 )
 
 val commonNativeSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
-    "org.scala-native" %%% "test-interface" % nativeVersion
+    "io.github.cquiroz" %%% "scala-java-time" % "2.6.0" % Test
   )
 )
 
@@ -240,6 +241,10 @@ lazy val zio = (projectMatrix in file("zio"))
   .jsPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
+  )
+  .nativePlatform(
+    scalaVersions = scala3,
+    settings = commonNativeSettings
   )
   .dependsOn(core)
 
