@@ -23,10 +23,10 @@ trait MonadError[F[_]] {
   def error[T](t: Throwable): F[T]
   protected def handleWrappedError[T](rt: F[T])(h: PartialFunction[Throwable, F[T]]): F[T]
   def handleError[T](rt: => F[T])(h: PartialFunction[Throwable, F[T]]): F[T] = {
-    Try(rt) match {
-      case Success(v)                     => handleWrappedError(v)(h)
-      case Failure(e) if h.isDefinedAt(e) => h(e)
-      case Failure(e)                     => error(e)
+    try handleWrappedError(rt)(h)
+    catch {
+      case e: Throwable if h.isDefinedAt(e) => h(e)
+      case e: Throwable                     => error(e)
     }
   }
 

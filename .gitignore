@@ -17,6 +17,7 @@ project/plugins/project/
 .worksheet
 
 .idea*
+.vscode
 
 .keys*
 
@@ -28,6 +29,6 @@ lowered.hnir
 # Bloop / Metals
 .bloop/
 .metals/
-project/metals.sbt
+metals.sbt
 
 .bsp
