@@ -90,7 +90,15 @@ lazy val rootProject = (project in file("."))
   .aggregate(projectAggregates: _*)
 
 lazy val core = (projectMatrix in file("core"))
-  .settings(name := "core")
+  .settings(
+    name := "core",
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) => Nil
+        case _            => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value % Provided)
+      }
+    }
+  )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
     settings = commonJvmSettings
