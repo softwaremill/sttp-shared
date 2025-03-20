@@ -27,7 +27,7 @@ class IdentityMonadTest extends AnyFlatSpec with Matchers {
     var ran = false
 
     intercept[RuntimeException] {
-      m.error(new RuntimeException("boom!")).ensure({ ran = true })
+      m.error[Int](new RuntimeException("boom!")).ensure({ ran = true })
     }
 
     ran shouldBe true
