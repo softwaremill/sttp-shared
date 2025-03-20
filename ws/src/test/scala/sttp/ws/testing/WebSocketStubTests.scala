@@ -7,31 +7,15 @@ import sttp.monad.MonadError
 import sttp.ws.{WebSocketClosed, WebSocketFrame}
 
 import scala.util.{Failure, Success}
+import sttp.monad.IdentityMonad
 
 class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
-  type Identity[X] = X
-  object IdMonad extends MonadError[Identity] {
-    override def unit[T](t: T): Identity[T] = t
-    override def map[T, T2](fa: Identity[T])(f: T => T2): Identity[T2] = f(fa)
-    override def flatMap[T, T2](fa: Identity[T])(f: T => Identity[T2]): Identity[T2] = f(fa)
-
-    override def error[T](t: Throwable): Identity[T] = throw t
-    override protected def handleWrappedError[T](rt: Identity[T])(
-        h: PartialFunction[Throwable, Identity[T]]
-    ): Identity[T] = rt
-
-    override def eval[T](t: => T): Identity[T] = t
-    override def ensure[T](f: Identity[T], e: => Identity[Unit]): Identity[T] =
-      try f
-      finally e
-  }
-
   class MyException extends Exception
 
   "web socket stub" should "return initial Incoming frames on 'receive'" in {
     val frames = List("a", "b", "c").map(WebSocketFrame.text)
     val webSocketStub = WebSocketStub.initialReceive(frames)
-    val ws = webSocketStub.build(IdMonad)
+    val ws = webSocketStub.build(IdentityMonad)
 
     ws.receive() shouldBe WebSocketFrame.text("a")
     ws.receive() shouldBe WebSocketFrame.text("b")
@@ -42,7 +26,7 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
     val okFrame = WebSocketFrame.text("abc")
     val exception = new MyException
     val webSocketStub = WebSocketStub.initialReceiveWith(List(Success(okFrame), Failure(exception)))
-    val ws = webSocketStub.build(IdMonad)
+    val ws = webSocketStub.build(IdentityMonad)
 
     ws.receive() shouldBe WebSocketFrame.text("abc")
     assertThrows[MyException](ws.receive())
@@ -59,7 +43,7 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
         case `expectedFrame` => List(secondFrame, thirdFrame)
         case _               => List.empty
       }
-    val ws = webSocketStub.build(IdMonad)
+    val ws = webSocketStub.build(IdentityMonad)
 
     ws.receive() shouldBe WebSocketFrame.text("No. 1")
     assertThrows[IllegalStateException](ws.receive()) // no more stubbed messages
@@ -76,7 +60,7 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
 
     val webSocketStub = WebSocketStub.noInitialReceive
       .thenRespondWith(_ => List(Success(ok), Failure(exception)))
-    val ws = webSocketStub.build(IdMonad)
+    val ws = webSocketStub.build(IdentityMonad)
 
     ws.send(WebSocketFrame.text("let's add responses"))
     ws.receive() shouldBe WebSocketFrame.text("ok")
@@ -87,7 +71,7 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
     val ok = WebSocketFrame.text("ok")
     val closeFrame = WebSocketFrame.Close(500, "internal error")
     val webSocketStub = WebSocketStub.initialReceive(List(closeFrame, ok))
-    val ws = webSocketStub.build(IdMonad)
+    val ws = webSocketStub.build(IdentityMonad)
 
     ws.send(WebSocketFrame.text("let's add responses"))
     ws.receive() shouldBe closeFrame
@@ -100,7 +84,7 @@ class WebSocketStubTests extends AnyFlatSpec with Matchers with ScalaFutures {
       .thenRespondS(0) { case (counter, _) =>
         (counter + 1, List(WebSocketFrame.text(s"No. $counter")))
       }
-    val ws = webSocketStub.build(IdMonad)
+    val ws = webSocketStub.build(IdentityMonad)
 
     ws.send(WebSocketFrame.text("a"))
     ws.send(WebSocketFrame.text("b"))
