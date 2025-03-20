@@ -42,7 +42,16 @@ trait MonadError[F[_]] {
       case Failure(e) => error(e)
     }
 
+  /** Deprecated method which doesn't work properly when constructing the `f` effect itself throws exceptions - the
+    * finalizer `e` is not run in that case. Use `ensure2` instead, which uses a lazy-evaluated by-name parameter.
+    */
+  @deprecated(message = "Use ensure2 for proper exception handling", since = "1.5.0")
   def ensure[T](f: F[T], e: => F[Unit]): F[T]
+
+  /** Runs `f`, and ensures that `e` is always run afterwards, regardless of the outcome. `e` is run even when `f`
+    * throws exceptions during construction of the effect.
+    */
+  def ensure2[T](f: => F[T], e: => F[Unit]): F[T] = ensure(f, e)
 
   def blocking[T](t: => T): F[T] = eval(t)
 }
@@ -62,7 +71,7 @@ object syntax {
     def map[B](f: A => B)(implicit ME: MonadError[F]): F[B] = ME.map(r)(f)
     def flatMap[B](f: A => F[B])(implicit ME: MonadError[F]): F[B] = ME.flatMap(r)(f)
     def handleError[T](h: PartialFunction[Throwable, F[A]])(implicit ME: MonadError[F]): F[A] = ME.handleError(r)(h)
-    def ensure(e: => F[Unit])(implicit ME: MonadError[F]): F[A] = ME.ensure(r, e)
+    def ensure(e: => F[Unit])(implicit ME: MonadError[F]): F[A] = ME.ensure2(r, e)
     def flatTap[B](f: A => F[B])(implicit ME: MonadError[F]): F[A] = ME.flatTap(r)(f)
   }
 
@@ -98,13 +107,24 @@ object EitherMonad extends MonadError[Either[Throwable, *]] {
       case _                           => rt
     }
 
-  override def ensure[T](f: Either[Throwable, T], e: => Either[Throwable, Unit]): Either[Throwable, T] = {
+  override def ensure[T](f: Either[Throwable, T], e: => Either[Throwable, Unit]): Either[Throwable, T] = ensure2(f, e)
+
+  override def ensure2[T](f: => Either[Throwable, T], e: => Either[Throwable, Unit]): Either[Throwable, T] = {
     def runE =
       Try(e) match {
         case Failure(f) => Left(f)
         case Success(v) => v
       }
-    f match {
+
+    val ef =
+      try f
+      catch {
+        case t: Throwable =>
+          runE
+          throw t
+      }
+
+    ef match {
       case Left(f)  => runE.right.flatMap(_ => Left(f))
       case Right(v) => runE.right.map(_ => v)
     }
@@ -125,11 +145,22 @@ object TryMonad extends MonadError[Try] {
 
   override def fromTry[T](t: Try[T]): Try[T] = t
 
-  override def ensure[T](f: Try[T], e: => Try[Unit]): Try[T] =
-    f match {
+  override def ensure[T](f: Try[T], e: => Try[Unit]): Try[T] = ensure2(f, e)
+
+  override def ensure2[T](f: => Try[T], e: => Try[Unit]): Try[T] = {
+    val ef =
+      try f
+      catch {
+        case t: Throwable =>
+          e
+          throw t
+      }
+
+    ef match {
       case Success(v) => Try(e).flatten.map(_ => v)
       case Failure(f) => Try(e).flatten.flatMap(_ => Failure(f))
     }
+  }
 }
 class FutureMonad(implicit ec: ExecutionContext) extends MonadAsyncError[Future] {
   override def unit[T](t: T): Future[T] = Future.successful(t)
@@ -155,16 +186,23 @@ class FutureMonad(implicit ec: ExecutionContext) extends MonadAsyncError[Future]
     p.future
   }
 
-  override def ensure[T](f: Future[T], e: => Future[Unit]): Future[T] = {
+  override def ensure[T](f: Future[T], e: => Future[Unit]): Future[T] = ensure2(f, e)
+
+  override def ensure2[T](f: => Future[T], e: => Future[Unit]): Future[T] = {
     val p = Promise[T]()
     def runE =
       Try(e) match {
         case Failure(f) => Future.failed(f)
         case Success(v) => v
       }
-    f.onComplete {
-      case Success(v) => runE.map(_ => v).onComplete(p.complete(_))
-      case Failure(f) => runE.flatMap(_ => Future.failed(f)).onComplete(p.complete(_))
+    try {
+      f.onComplete {
+        case Success(v) => runE.map(_ => v).onComplete(p.complete(_))
+        case Failure(f) => runE.flatMap(_ => Future.failed(f)).onComplete(p.complete(_))
+      }
+    } catch {
+      case t: Throwable =>
+        e.onComplete(_ => p.complete(Failure(t)))
     }
     p.future
   }
@@ -181,7 +219,8 @@ object IdentityMonad extends MonadError[Identity] {
       h: PartialFunction[Throwable, Identity[T]]
   ): Identity[T] = rt
   override def eval[T](t: => T): Identity[T] = t
-  override def ensure[T](f: Identity[T], e: => Identity[Unit]): Identity[T] =
+  override def ensure[T](f: Identity[T], e: => Identity[Unit]): Identity[T] = ensure2(f, e)
+  override def ensure2[T](f: => Identity[T], e: => Identity[Unit]): Identity[T] =
     try f
     finally e
 }
