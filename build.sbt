@@ -9,7 +9,7 @@ val scala2 = List(scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.6")
 val akkaVersion = "2.6.20"
-val pekkoVersion = "1.1.5"
+val pekkoVersion = "1.2.0"
 val sttpModelVersion = "1.7.16"
 
 val scalaTestVersion = "3.2.19"
