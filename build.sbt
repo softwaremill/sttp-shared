@@ -14,7 +14,7 @@ val sttpModelVersion = "1.7.17"
 
 val scalaTestVersion = "3.2.19"
 val zio1Version = "1.0.18"
-val zio2Version = "2.1.22"
+val zio2Version = "2.1.23"
 val fs2_2_version = "2.5.13"
 val fs2_3_version = "3.10.0"
 val armeriaVersion = "1.33.4"
