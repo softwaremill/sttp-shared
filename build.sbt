@@ -17,7 +17,7 @@ val zio1Version = "1.0.18"
 val zio2Version = "2.1.24"
 val fs2_2_version = "2.5.13"
 val fs2_3_version = "3.10.0"
-val armeriaVersion = "1.34.1"
+val armeriaVersion = "1.34.2"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
