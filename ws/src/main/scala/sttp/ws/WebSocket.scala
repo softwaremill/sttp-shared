@@ -48,8 +48,8 @@ trait WebSocket[F[_]] {
     */
   def receiveDataFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Data[_]] =
     receive().flatMap {
-      case close: WebSocketFrame.Close => monad.error(WebSocketClosed(Some(close)))
-      case d: WebSocketFrame.Data[_]   => monad.unit(d)
+      case close: WebSocketFrame.Close                => monad.error(WebSocketClosed(Some(close)))
+      case d: WebSocketFrame.Data[_]                  => monad.unit(d)
       case WebSocketFrame.Ping(payload) if pongOnPing =>
         send(WebSocketFrame.Pong(payload))
           // https://github.com/softwaremill/sttp/issues/2236: after a Ping frame is received, the WS might have become
