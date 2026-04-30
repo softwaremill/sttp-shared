@@ -16,7 +16,7 @@ val scalaTestVersion = "3.2.20"
 val zio1Version = "1.0.18"
 val zio2Version = "2.1.25"
 val fs2_2_version = "2.5.13"
-val fs2_3_version = "3.10.0"
+val fs2_3_version = "3.13.0"
 val armeriaVersion = "1.38.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
@@ -204,6 +204,10 @@ lazy val fs2 = (projectMatrix in file("fs2"))
   .jsPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJsSettings ++ browserChromeTestSettings
+  )
+  .nativePlatform(
+    scalaVersions = scala2alive ++ scala3,
+    settings = commonNativeSettings
   )
   .dependsOn(core)
 
