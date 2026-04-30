@@ -9,15 +9,15 @@ val scala2 = List(scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.3.7")
 val akkaVersion = "2.6.20"
-val pekkoVersion = "1.4.0"
+val pekkoVersion = "1.5.0"
 val sttpModelVersion = "1.7.17"
 
 val scalaTestVersion = "3.2.20"
 val zio1Version = "1.0.18"
-val zio2Version = "2.1.24"
+val zio2Version = "2.1.25"
 val fs2_2_version = "2.5.13"
 val fs2_3_version = "3.10.0"
-val armeriaVersion = "1.37.0"
+val armeriaVersion = "1.38.0"
 
 excludeLintKeys in Global ++= Set(ideSkipProject)
 
