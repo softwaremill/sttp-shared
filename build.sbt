@@ -60,14 +60,14 @@ val commonJsSettings = commonSettings ++ Seq(
   },
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "2.8.1",
-    "io.github.cquiroz" %%% "scala-java-time" % "2.6.0" % Test
+    "io.github.cquiroz" %%% "scala-java-time" % "2.7.0" % Test
   )
 )
 
 val commonNativeSettings = commonSettings ++ Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
-    "io.github.cquiroz" %%% "scala-java-time" % "2.6.0" % Test
+    "io.github.cquiroz" %%% "scala-java-time" % "2.7.0" % Test
   )
 )
 
