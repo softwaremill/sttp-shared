@@ -270,7 +270,7 @@ lazy val vertx = (projectMatrix in file("vertx"))
   .jvmPlatform(
     scalaVersions = List(scala2_12, scala2_13) ++ scala3,
     settings = commonJvmSettings ++ Seq(
-      libraryDependencies += "io.vertx" % "vertx-core" % "5.1.8"
+      libraryDependencies += "io.vertx" % "vertx-core" % "5.2.0"
     )
   )
   .dependsOn(core)
