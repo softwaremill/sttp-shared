@@ -19,31 +19,32 @@ val fs2_2_version = "2.5.13"
 val fs2_3_version = "3.14.0"
 val armeriaVersion = "1.41.1"
 
-excludeLintKeys in Global ++= Set(ideSkipProject)
+Global / excludeLintKeys ++= Set(ideSkipProject)
 
 def dependenciesFor(version: String)(deps: (Option[(Long, Long)] => ModuleID)*): Seq[ModuleID] =
   deps.map(_.apply(CrossVersion.partialVersion(version)))
 
-val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
-  organization := "com.softwaremill.sttp.shared",
-  libraryDependencies ++= Seq(
-    "org.scalatest" %%% "scalatest" % scalaTestVersion % Test
-  ),
-  mimaPreviousArtifacts := Set.empty,
-  versionScheme := Some("semver-spec")
-)
+commonSmlBuildSettings
+ossPublishSettings
 
-val commonJvmSettings = commonSettings ++ Seq(
+organization := "com.softwaremill.sttp.shared"
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+)
+mimaPreviousArtifacts := Set.empty
+versionScheme := Some("semver-spec")
+
+val commonJvmSettings = Seq(
   scalacOptions ++=
     (if (ScalaArtifacts.isScala3(scalaVersion.value)) Seq("-Yfuture-lazy-vals", "-java-output-version", "11")
-     else Seq.empty),
+     else Seq("-release", "8")),
   ideSkipProject := (scalaVersion.value != scala2_13),
   bspEnabled := !ideSkipProject.value,
   mimaPreviousArtifacts := previousStableVersion.value.map(organization.value %% moduleName.value % _).toSet,
   mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value }
 )
 
-val commonJsSettings = commonSettings ++ Seq(
+val commonJsSettings = Seq(
   ideSkipProject := true,
   Compile / scalacOptions ++= {
     if (isSnapshot.value) Seq.empty
@@ -62,15 +63,15 @@ val commonJsSettings = commonSettings ++ Seq(
     }
   },
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "2.8.1",
-    "io.github.cquiroz" %%% "scala-java-time" % "2.7.0" % Test
+    "org.scala-js" %% "scalajs-dom" % "2.8.1",
+    "io.github.cquiroz" %% "scala-java-time" % "2.7.0" % Test
   )
 )
 
-val commonNativeSettings = commonSettings ++ Seq(
+val commonNativeSettings = Seq(
   ideSkipProject := true,
   libraryDependencies ++= Seq(
-    "io.github.cquiroz" %%% "scala-java-time" % "2.7.0" % Test
+    "io.github.cquiroz" %% "scala-java-time" % "2.7.0" % Test
   )
 )
 
@@ -88,9 +89,8 @@ lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STT
 val compileAndTest = "compile->compile;test->test"
 
 lazy val rootProject = (project in file("."))
-  .settings(commonSettings: _*)
   .settings(publish / skip := true, name := "sttp-shared", scalaVersion := scala2_13)
-  .aggregate(projectAggregates: _*)
+  .aggregate(projectAggregates*)
 
 lazy val core = (projectMatrix in file("core"))
   .settings(
@@ -118,7 +118,7 @@ lazy val core = (projectMatrix in file("core"))
 lazy val ws = (projectMatrix in file("ws"))
   .settings(
     name := "ws",
-    libraryDependencies += "com.softwaremill.sttp.model" %%% "core" % sttpModelVersion
+    libraryDependencies += "com.softwaremill.sttp.model" %% "core" % sttpModelVersion
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
@@ -179,7 +179,7 @@ lazy val armeria = (projectMatrix in file("armeria"))
 lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .settings(
     name := "fs2-ce2",
-    libraryDependencies += "co.fs2" %%% "fs2-core" % fs2_2_version
+    libraryDependencies += "co.fs2" %% "fs2-core" % fs2_2_version
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
@@ -194,7 +194,7 @@ lazy val fs2ce2 = (projectMatrix in file("fs2-ce2"))
   .dependsOn(core)
 
 lazy val fs2 = (projectMatrix in file("fs2"))
-  .settings(name := "fs2", libraryDependencies += "co.fs2" %%% "fs2-core" % fs2_3_version)
+  .settings(name := "fs2", libraryDependencies += "co.fs2" %% "fs2-core" % fs2_3_version)
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
     settings = commonJvmSettings ++ Seq(
@@ -217,7 +217,7 @@ lazy val fs2 = (projectMatrix in file("fs2"))
 lazy val monix = (projectMatrix in file("monix"))
   .settings(
     name := "monix",
-    libraryDependencies += "io.monix" %%% "monix" % "3.4.1"
+    libraryDependencies += "io.monix" %% "monix" % "3.4.1"
   )
   .jvmPlatform(
     scalaVersions = scala2alive ++ scala3,
@@ -232,7 +232,7 @@ lazy val monix = (projectMatrix in file("monix"))
 lazy val zio1 = (projectMatrix in file("zio1"))
   .settings(
     name := "zio1",
-    libraryDependencies ++= Seq("dev.zio" %%% "zio-streams" % zio1Version, "dev.zio" %%% "zio" % zio1Version)
+    libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zio1Version, "dev.zio" %% "zio" % zio1Version)
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
@@ -247,7 +247,7 @@ lazy val zio1 = (projectMatrix in file("zio1"))
 lazy val zio = (projectMatrix in file("zio"))
   .settings(
     name := "zio",
-    libraryDependencies ++= Seq("dev.zio" %%% "zio-streams" % zio2Version, "dev.zio" %%% "zio" % zio2Version)
+    libraryDependencies ++= Seq("dev.zio" %% "zio-streams" % zio2Version, "dev.zio" %% "zio" % zio2Version)
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
