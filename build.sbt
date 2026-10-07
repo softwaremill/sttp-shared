@@ -119,13 +119,7 @@ lazy val ws = (projectMatrix in file("ws"))
   .settings(
     name := "ws",
     libraryDependencies += "com.softwaremill.sttp.model" %% "core" % sttpModelVersion,
-    scalacOptions ++= {
-      // TODO(scala-3.9): `Data[_]` in WebSocket.receiveDataFrame's signature should become `Data[?]`, but the
-      // source is shared with Scala 2.12/2.13, which don't accept `?` without -Xsource:3
-      if (ScalaArtifacts.isScala3(scalaVersion.value))
-        Seq("-Wconf:msg=is deprecated for wildcard arguments of types&src=.*sttp/ws/WebSocket\\.scala:s")
-      else Nil
-    }
+    scalacOptions ++= (if (ScalaArtifacts.isScala3(scalaVersion.value)) Nil else Seq("-Xsource:3"))
   )
   .jvmPlatform(
     scalaVersions = scala2 ++ scala3,
