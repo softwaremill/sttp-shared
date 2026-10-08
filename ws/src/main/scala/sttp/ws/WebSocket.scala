@@ -46,7 +46,7 @@ trait WebSocket[F[_]] {
     * @param pongOnPing
     *   Should a [[WebSocketFrame.Pong]] be sent when a [[WebSocketFrame.Ping]] is received.
     */
-  def receiveDataFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Data[_]] =
+  def receiveDataFrame(pongOnPing: Boolean = true): F[WebSocketFrame.Data[?]] =
     receive().flatMap {
       case close: WebSocketFrame.Close                => monad.error(WebSocketClosed(Some(close)))
       case d: WebSocketFrame.Data[_]                  => monad.unit(d)
