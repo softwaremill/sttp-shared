@@ -19,7 +19,7 @@ Add the following dependency:
 "com.softwaremill.sttp.shared" %% "core" % "1.5.3"
 ```
 
-sttp-shared is available for Scala 2.12, 2.13, 3.3, Scala.JS and Scala Native.
+sttp-shared is available for Scala 2.12, 2.13, 3.9, Scala.JS and Scala Native.
 
 ### Building & testing the scala-native version
 
