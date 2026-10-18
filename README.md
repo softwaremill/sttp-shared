@@ -16,7 +16,7 @@ sttp is a family of Scala HTTP-related projects, and currently includes:
 Add the following dependency:
 
 ```scala
-"com.softwaremill.sttp.shared" %% "core" % "1.5.3"
+"com.softwaremill.sttp.shared" %% "core" % "1.6.0"
 ```
 
 sttp-shared is available for Scala 2.12, 2.13, 3.9, Scala.JS and Scala Native.
