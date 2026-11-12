@@ -33,3 +33,7 @@ metals.sbt
 
 .bsp
 .cursor
+
+# TraceVault — local only, do not commit
+.tracevault/
+.claude/settings.local.json
