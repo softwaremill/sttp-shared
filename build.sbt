@@ -8,8 +8,10 @@ val scala2_13 = "2.13.18"
 val scala2 = List(scala2_12, scala2_13)
 val scala2alive = List(scala2_12, scala2_13)
 val scala3 = List("3.9.0")
+val scala2_13And3 = List(scala2_13) ++ scala3
 val akkaVersion = "2.6.20"
 val pekkoVersion = "1.7.1"
+val pekko2Version = "2.0.0"
 val sttpModelVersion = "1.9.0"
 
 val scalaTestVersion = "3.2.20"
@@ -44,6 +46,18 @@ val commonJvmSettings = Seq(
   mimaReportBinaryIssues := { if ((publish / skip).value) {} else mimaReportBinaryIssues.value }
 )
 
+// Pekko 2 requires Java 17, while the shared Scala 2.13 settings target Java 8.
+// This is a new artifact, so there is no previous version to check with MiMa.
+val commonJvmSettingsPekko2 = Seq(
+  scalacOptions ++=
+    (if (ScalaArtifacts.isScala3(scalaVersion.value)) Seq("-java-output-version", "17")
+     else Seq("-release", "17")),
+  ideSkipProject := true,
+  bspEnabled := false,
+  mimaPreviousArtifacts := Set.empty,
+  mimaReportBinaryIssues := {}
+)
+
 val commonJsSettings = Seq(
   ideSkipProject := true,
   Compile / scalacOptions ++= {
@@ -76,7 +90,7 @@ val commonNativeSettings = Seq(
 )
 
 lazy val allProjectRefs =
-  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ pekko.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs ++ vertx.projectRefs
+  core.projectRefs ++ ws.projectRefs ++ akka.projectRefs ++ pekko.projectRefs ++ pekko2.projectRefs ++ armeria.projectRefs ++ fs2ce2.projectRefs ++ fs2.projectRefs ++ monix.projectRefs ++ zio1.projectRefs ++ zio.projectRefs ++ vertx.projectRefs
 
 lazy val projectAggregates: Seq[ProjectReference] = if (sys.env.isDefinedAt("STTP_NATIVE")) {
   println("[info] STTP_NATIVE defined, including sttp-native in the aggregate projects")
@@ -160,6 +174,24 @@ lazy val pekko = (projectMatrix in file("pekko"))
       libraryDependencies ++= Seq(
         "org.apache.pekko" %% "pekko-stream" % pekkoVersion % "provided",
         "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion % Test
+      )
+    )
+  )
+  .dependsOn(core)
+
+// Pekko 2 is not binary compatible with Pekko 1.x, so publish a separate capability artifact.
+lazy val pekko2 = (projectMatrix in file("pekko-pekko2"))
+  .settings(
+    name := "pekko-pekko2"
+  )
+  .jvmPlatform(
+    scalaVersions = scala2_13And3,
+    settings = commonJvmSettingsPekko2 ++ Seq(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "pekko/src/main/scala",
+      Test / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "pekko/src/test/scala",
+      libraryDependencies ++= Seq(
+        "org.apache.pekko" %% "pekko-stream" % pekko2Version % "provided",
+        "org.apache.pekko" %% "pekko-stream-testkit" % pekko2Version % Test
       )
     )
   )
